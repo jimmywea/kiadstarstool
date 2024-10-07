@@ -36,7 +36,7 @@ body {
   display: block;
 }
 
-input, button, select {
+input, button, select, textarea {
   width: 100%;
   padding: 10px;
   margin: 5px 0;
@@ -74,4 +74,8 @@ button {
 
 .suggestions-list li:hover {
   background-color: #f1f1f1;
+}
+
+textarea {
+  resize: vertical;
 }
