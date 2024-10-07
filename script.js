@@ -23,7 +23,7 @@ window.markAttendance = async function() {
   const name = document.getElementById('student-name').value;
   const time = new Date(document.getElementById('attendance-time').value);
   const selectedClass = document.getElementById('attendance-class').value;
-  
+
   try {
     await addDoc(collection(db, 'attendance'), { 
       name, 
@@ -41,31 +41,38 @@ window.queryStudent = async function() {
   const name = document.getElementById('query-student-name').value;
   const startDate = new Date(document.getElementById('query-student-start-date').value);
   const endDate = new Date(document.getElementById('query-student-end-date').value);
-  
+
   const studentQuery = query(
     collection(db, 'attendance'), 
     where("name", "==", name), 
     where("date", ">=", Timestamp.fromDate(startDate)), 
     where("date", "<=", Timestamp.fromDate(endDate))
   );
-  
+
   const querySnapshot = await getDocs(studentQuery);
   let result = '';
   let totalSessions = 0;
-  const subjectCounts = {};
+  const classDetails = {};
 
   querySnapshot.forEach(doc => {
     const data = doc.data();
     const className = data.classes[0];
+    const date = data.date.toDate().toLocaleString(); // Thêm ngày giờ đầy đủ
+    if (!classDetails[className]) {
+      classDetails[className] = [];
+    }
+    classDetails[className].push(date);
     totalSessions++;
-    subjectCounts[className] = (subjectCounts[className] || 0) + 1;
   });
 
-  for (const [subject, count] of Object.entries(subjectCounts)) {
-    result += `${subject}: ${count} buổi\n`;
+  for (const [className, sessions] of Object.entries(classDetails)) {
+    result += `${className}: ${sessions.length} buổi\n`;
+    sessions.forEach(session => {
+      result += ` - ${session}\n`; // Thêm ngày và giờ cho từng buổi
+    });
   }
   result += `Tổng số buổi: ${totalSessions}`;
-
+  
   document.getElementById('query-student-result').innerText = result || 'Không có dữ liệu';
 }
 
@@ -77,13 +84,13 @@ window.queryByTime = async function() {
 
   const startTimestamp = new Date(`${startDate.toISOString().split('T')[0]}T${startTime}`);
   const endTimestamp = new Date(`${endDate.toISOString().split('T')[0]}T${endTime}`);
-  
+
   const timeQuery = query(
     collection(db, 'attendance'), 
     where("date", ">=", Timestamp.fromDate(startTimestamp)), 
     where("date", "<=", Timestamp.fromDate(endTimestamp))
   );
-  
+
   const querySnapshot = await getDocs(timeQuery);
   let result = '';
 
