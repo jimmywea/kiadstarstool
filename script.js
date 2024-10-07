@@ -1,6 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
 import { getFirestore, collection, addDoc, query, where, getDocs, Timestamp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
+// Cấu hình Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyDL56ekmdndk3wd099KuJWUyogRUa3bwW8",
   authDomain: "kidstars-7434d.firebaseapp.com",
@@ -14,21 +15,25 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+// Chuyển đổi giữa các phần trong ứng dụng
 window.showSection = function(sectionId) {
   document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
   document.getElementById(sectionId).classList.add('active');
 }
 
+// Hàm điểm danh học sinh, bao gồm cả nội dung buổi học
 window.markAttendance = async function() {
   const name = document.getElementById('student-name').value;
   const time = new Date(document.getElementById('attendance-time').value);
   const selectedClass = document.getElementById('attendance-class').value;
+  const content = document.getElementById('attendance-content').value; // Lấy nội dung buổi học
 
   try {
     await addDoc(collection(db, 'attendance'), { 
       name, 
       date: Timestamp.fromDate(time),
-      classes: [selectedClass] 
+      classes: [selectedClass],
+      content // Lưu nội dung buổi học vào Firestore
     });
     document.getElementById('attendance-status').innerText = 'Điểm danh thành công';
   } catch (error) {
@@ -37,6 +42,39 @@ window.markAttendance = async function() {
   }
 }
 
+// Gợi ý tên học sinh kèm môn học để dễ phân biệt
+window.suggestStudentNames = async function(inputId, suggestionsId) {
+  const input = document.getElementById(inputId);
+  const queryText = input.value.trim().toLowerCase();
+  const suggestionsList = document.getElementById(suggestionsId);
+
+  suggestionsList.innerHTML = '';
+
+  if (queryText.length === 0) return;
+
+  const studentQuery = query(collection(db, 'students'));
+  const querySnapshot = await getDocs(studentQuery);
+
+  querySnapshot.forEach(doc => {
+    const studentData = doc.data();
+    const studentName = studentData.name.toLowerCase();
+
+    if (studentName.includes(queryText)) {
+      const suggestionItem = document.createElement('li');
+      const classes = studentData.classes.join(', ');
+      suggestionItem.textContent = `${studentData.name} - ${classes}`;
+      
+      suggestionItem.onclick = () => {
+        input.value = studentData.name;
+        suggestionsList.innerHTML = '';
+      };
+
+      suggestionsList.appendChild(suggestionItem);
+    }
+  });
+}
+
+// Truy vấn điểm danh của một học sinh theo khoảng thời gian
 window.queryStudent = async function() {
   const name = document.getElementById('query-student-name').value;
   const startDate = new Date(document.getElementById('query-student-start-date').value);
@@ -57,18 +95,19 @@ window.queryStudent = async function() {
   querySnapshot.forEach(doc => {
     const data = doc.data();
     const className = data.classes[0];
-    const date = data.date.toDate().toLocaleString(); // Thêm ngày giờ đầy đủ
+    const date = data.date.toDate().toLocaleString();
+    const content = data.content || 'Không có';
     if (!classDetails[className]) {
       classDetails[className] = [];
     }
-    classDetails[className].push(date);
+    classDetails[className].push({date, content});
     totalSessions++;
   });
 
   for (const [className, sessions] of Object.entries(classDetails)) {
     result += `${className}: ${sessions.length} buổi\n`;
     sessions.forEach(session => {
-      result += ` - ${session}\n`; // Thêm ngày và giờ cho từng buổi
+      result += ` - ${session.date} - Nội dung: ${session.content}\n`;
     });
   }
   result += `Tổng số buổi: ${totalSessions}`;
@@ -76,6 +115,7 @@ window.queryStudent = async function() {
   document.getElementById('query-student-result').innerText = result || 'Không có dữ liệu';
 }
 
+// Truy vấn điểm danh theo khoảng thời gian cụ thể
 window.queryByTime = async function() {
   const startDate = new Date(document.getElementById('query-time-start-date').value);
   const endDate = new Date(document.getElementById('query-time-end-date').value);
@@ -96,42 +136,13 @@ window.queryByTime = async function() {
 
   querySnapshot.forEach(doc => {
     const data = doc.data();
-    result += `${data.name} - ${data.date.toDate().toLocaleString()} - ${data.classes.join(', ')}\n`;
+    result += `${data.name} - ${data.date.toDate().toLocaleString()} - ${data.classes.join(', ')} - Nội dung: ${data.content || 'Không có'}\n`;
   });
 
   document.getElementById('query-time-result').innerText = result || 'Không có dữ liệu';
 }
 
-window.suggestStudentNames = async function(inputId, suggestionsId) {
-  const input = document.getElementById(inputId);
-  const queryText = input.value.trim().toLowerCase();
-  const suggestionsList = document.getElementById(suggestionsId);
-
-  suggestionsList.innerHTML = '';
-
-  if (queryText.length === 0) return;
-
-  const studentQuery = query(collection(db, 'students'));
-  const querySnapshot = await getDocs(studentQuery);
-
-  querySnapshot.forEach(doc => {
-    const studentData = doc.data();
-    const studentName = studentData.name.toLowerCase();
-
-    if (studentName.includes(queryText)) {
-      const suggestionItem = document.createElement('li');
-      suggestionItem.textContent = studentData.name;
-      
-      suggestionItem.onclick = () => {
-        input.value = studentData.name;
-        suggestionsList.innerHTML = '';
-      };
-
-      suggestionsList.appendChild(suggestionItem);
-    }
-  });
-}
-
+// Thêm học sinh mới vào cơ sở dữ liệu
 window.addStudent = async function() {
   const name = document.getElementById('new-student-name').value;
   const subjects = [];
