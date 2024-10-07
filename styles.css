@@ -36,7 +36,7 @@ body {
   display: block;
 }
 
-input, button {
+input, button, select {
   width: 100%;
   padding: 10px;
   margin: 5px 0;
@@ -52,4 +52,26 @@ button {
 .checkbox-group label {
   display: block;
   margin: 5px 0;
+}
+
+.suggestions-list {
+  list-style-type: none;
+  padding: 0;
+  margin-top: 0;
+  max-height: 100px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  background-color: #fff;
+  position: absolute;
+  width: 90%;
+  z-index: 10;
+}
+
+.suggestions-list li {
+  padding: 5px;
+  cursor: pointer;
+}
+
+.suggestions-list li:hover {
+  background-color: #f1f1f1;
 }
