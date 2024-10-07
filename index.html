@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ứng dụng Điểm danh Học sinh</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Navigation -->
+    <div class="nav">
+      <button onclick="showSection('attendance')">Điểm danh</button>
+      <button onclick="showSection('query-student')">Truy vấn học sinh</button>
+      <button onclick="showSection('query-time')">Truy vấn thời gian</button>
+      <button onclick="showSection('add-student')">Thêm học sinh mới</button>
+    </div>
+
+    <!-- Điểm danh -->
+    <div id="attendance" class="section">
+      <h2>Điểm danh học sinh</h2>
+      <input type="text" id="student-name" placeholder="Tên học sinh">
+      <input type="datetime-local" id="attendance-time">
+      <button onclick="markAttendance()">Điểm danh</button>
+      <p id="attendance-status"></p>
+    </div>
+
+    <!-- Truy vấn học sinh cụ thể -->
+    <div id="query-student" class="section">
+      <h2>Truy vấn học sinh cụ thể</h2>
+      <input type="text" id="query-student-name" placeholder="Tên học sinh">
+      <input type="date" id="query-student-date">
+      <button onclick="queryStudent()">Truy vấn</button>
+      <p id="query-student-result"></p>
+    </div>
+
+    <!-- Truy vấn thời gian cụ thể -->
+    <div id="query-time" class="section">
+      <h2>Truy vấn theo thời gian</h2>
+      <input type="date" id="query-time-date">
+      <input type="time" id="query-start-time">
+      <input type="time" id="query-end-time">
+      <button onclick="queryByTime()">Truy vấn</button>
+      <p id="query-time-result"></p>
+    </div>
+
+    <!-- Thêm học sinh mới -->
+    <div id="add-student" class="section">
+      <h2>Thêm học sinh mới</h2>
+      <input type="text" id="new-student-name" placeholder="Tên học sinh">
+      <h3>Chọn môn học:</h3>
+      <div class="checkbox-group">
+        <label><input type="checkbox" value="Piano" id="piano"> Piano</label>
+        <label><input type="checkbox" value="Guitar" id="guitar"> Guitar</label>
+        <label><input type="checkbox" value="Vocal" id="vocal"> Thanh nhạc</label>
+        <label><input type="checkbox" value="Drawing" id="drawing"> Vẽ</label>
+        <label><input type="checkbox" value="Dance" id="dance"> Nhảy</label>
+        <label><input type="checkbox" value="MC" id="mc"> MC</label>
+      </div>
+      <button onclick="addStudent()">Thêm học sinh</button>
+      <p id="add-student-status"></p>
+    </div>
+  </div>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>
