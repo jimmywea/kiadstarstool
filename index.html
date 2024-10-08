@@ -30,8 +30,11 @@
         <option value="Dance">Nhảy</option>
         <option value="MC">MC</option>
       </select>
-      <!-- Thêm phần nội dung buổi học -->
       <textarea id="attendance-content" placeholder="Nội dung buổi học" rows="4"></textarea>
+      <!-- Checkbox Vắng mặt -->
+      <label>
+        <input type="checkbox" id="absent-checkbox"> Vắng mặt
+      </label>
       <button onclick="markAttendance()">Điểm danh</button>
       <p id="attendance-status"></p>
     </div>
