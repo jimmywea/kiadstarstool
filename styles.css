@@ -79,3 +79,8 @@ button {
 textarea {
   resize: vertical;
 }
+
+label {
+  margin-top: 10px;
+  display: block;
+}
