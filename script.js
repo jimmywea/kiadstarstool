@@ -1,8 +1,6 @@
-// Import các thư viện Firebase cần thiết
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
 import { getFirestore, collection, addDoc, query, where, getDocs, Timestamp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
-// Cấu hình Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyDL56ekmdndk3wd099KuJWUyogRUa3bwW8",
   authDomain: "kidstars-7434d.firebaseapp.com",
@@ -16,7 +14,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Hàm để hiển thị các phần khác nhau
 window.showSection = function(sectionId) {
   document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
   document.getElementById(sectionId).classList.add('active');
@@ -24,13 +21,12 @@ window.showSection = function(sectionId) {
   if (sectionId === 'schedule') loadStudentCheckboxes();
 };
 
-// Hàm load danh sách học sinh vào checkbox
 window.loadStudentCheckboxes = async function() {
   const studentList = document.getElementById('schedule-student-list');
   const studentQuery = query(collection(db, 'students'));
   const querySnapshot = await getDocs(studentQuery);
 
-  studentList.innerHTML = ''; // Xóa danh sách cũ
+  studentList.innerHTML = '';
 
   querySnapshot.forEach(doc => {
     const studentData = doc.data();
@@ -42,7 +38,6 @@ window.loadStudentCheckboxes = async function() {
   });
 };
 
-// Hàm thêm lịch học mới
 window.addSchedule = async function() {
   const day = document.getElementById('schedule-day').value;
   const time = document.getElementById('schedule-time').value;
@@ -67,4 +62,4 @@ window.addSchedule = async function() {
   }
 };
 
-// Các hàm chức năng cũ như điểm danh, truy vấn vẫn giữ nguyên
+// Các hàm chức năng cũ như markAttendance, queryStudent, queryByTime, addStudent giữ nguyên
