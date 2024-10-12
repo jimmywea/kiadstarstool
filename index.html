@@ -14,20 +14,14 @@
       <button onclick="showSection('query-student')">Truy vấn học sinh</button>
       <button onclick="showSection('query-time')">Truy vấn thời gian</button>
       <button onclick="showSection('add-student')">Thêm học sinh mới</button>
-      <button onclick="showSection('schedule')">Thêm lịch học</button>
     </div>
 
     <!-- Điểm danh -->
     <div id="attendance" class="section">
       <h2>Điểm danh học sinh</h2>
-      <label for="student-name">Tên học sinh</label>
       <input type="text" id="student-name" placeholder="Tên học sinh" oninput="suggestStudentNames('student-name', 'attendance-suggestions')">
       <ul id="attendance-suggestions" class="suggestions-list"></ul>
-      
-      <label for="attendance-time">Thời gian</label>
       <input type="datetime-local" id="attendance-time">
-      
-      <label for="attendance-class">Lớp học</label>
       <select id="attendance-class">
         <option value="Piano">Piano</option>
         <option value="Guitar">Guitar</option>
@@ -36,11 +30,9 @@
         <option value="Dance">Nhảy</option>
         <option value="MC">MC</option>
       </select>
-      
-      <label for="attendance-content">Nội dung buổi học</label>
       <textarea id="attendance-content" placeholder="Nội dung buổi học" rows="4"></textarea>
-      
-      <label for="absent-checkbox">
+      <!-- Checkbox Vắng mặt -->
+      <label>
         <input type="checkbox" id="absent-checkbox"> Vắng mặt
       </label>
       <button onclick="markAttendance()">Điểm danh</button>
@@ -50,14 +42,9 @@
     <!-- Truy vấn học sinh cụ thể -->
     <div id="query-student" class="section">
       <h2>Truy vấn học sinh cụ thể</h2>
-      <label for="query-student-name">Tên học sinh</label>
       <input type="text" id="query-student-name" placeholder="Tên học sinh" oninput="suggestStudentNames('query-student-name', 'query-student-suggestions')">
       <ul id="query-student-suggestions" class="suggestions-list"></ul>
-      
-      <label for="query-student-start-date">Ngày bắt đầu</label>
       <input type="date" id="query-student-start-date">
-      
-      <label for="query-student-end-date">Ngày kết thúc</label>
       <input type="date" id="query-student-end-date">
       <button onclick="queryStudent()">Truy vấn</button>
       <p id="query-student-result"></p>
@@ -66,16 +53,9 @@
     <!-- Truy vấn theo thời gian cụ thể -->
     <div id="query-time" class="section">
       <h2>Truy vấn theo thời gian</h2>
-      <label for="query-time-start-date">Ngày bắt đầu</label>
       <input type="date" id="query-time-start-date">
-      
-      <label for="query-time-end-date">Ngày kết thúc</label>
       <input type="date" id="query-time-end-date">
-      
-      <label for="query-start-time">Giờ bắt đầu</label>
       <input type="time" id="query-start-time">
-      
-      <label for="query-end-time">Giờ kết thúc</label>
       <input type="time" id="query-end-time">
       <button onclick="queryByTime()">Truy vấn</button>
       <p id="query-time-result"></p>
@@ -84,54 +64,18 @@
     <!-- Thêm học sinh mới -->
     <div id="add-student" class="section">
       <h2>Thêm học sinh mới</h2>
-      <label for="new-student-name">Tên học sinh</label>
       <input type="text" id="new-student-name" placeholder="Tên học sinh">
-      
       <h3>Chọn môn học:</h3>
       <div class="checkbox-group">
-        <label for="piano"><input type="checkbox" value="Piano" id="piano"> Piano</label>
-        <label for="guitar"><input type="checkbox" value="Guitar" id="guitar"> Guitar</label>
-        <label for="vocal"><input type="checkbox" value="Vocal" id="vocal"> Thanh nhạc</label>
-        <label for="drawing"><input type="checkbox" value="Drawing" id="drawing"> Vẽ</label>
-        <label for="dance"><input type="checkbox" value="Dance" id="dance"> Nhảy</label>
-        <label for="mc"><input type="checkbox" value="MC" id="mc"> MC</label>
+        <label><input type="checkbox" value="Piano" id="piano"> Piano</label>
+        <label><input type="checkbox" value="Guitar" id="guitar"> Guitar</label>
+        <label><input type="checkbox" value="Vocal" id="vocal"> Thanh nhạc</label>
+        <label><input type="checkbox" value="Drawing" id="drawing"> Vẽ</label>
+        <label><input type="checkbox" value="Dance" id="dance"> Nhảy</label>
+        <label><input type="checkbox" value="MC" id="mc"> MC</label>
       </div>
       <button onclick="addStudent()">Thêm học sinh</button>
       <p id="add-student-status"></p>
-    </div>
-
-    <!-- Thêm lịch học -->
-    <div id="schedule" class="section">
-      <h2>Thêm lịch học</h2>
-      <label for="schedule-day">Chọn ngày:</label>
-      <select id="schedule-day">
-        <option value="Monday">Thứ Hai</option>
-        <option value="Tuesday">Thứ Ba</option>
-        <option value="Wednesday">Thứ Tư</option>
-        <option value="Thursday">Thứ Năm</option>
-        <option value="Friday">Thứ Sáu</option>
-        <option value="Saturday">Thứ Bảy</option>
-        <option value="Sunday">Chủ Nhật</option>
-      </select>
-
-      <label for="schedule-time">Chọn giờ:</label>
-      <input type="time" id="schedule-time">
-      
-      <label for="schedule-subject">Chọn môn học:</label>
-      <select id="schedule-subject">
-        <option value="Piano">Piano</option>
-        <option value="Guitar">Guitar</option>
-        <option value="Vocal">Thanh nhạc</option>
-        <option value="Drawing">Vẽ</option>
-        <option value="Dance">Nhảy</option>
-        <option value="MC">MC</option>
-      </select>
-      
-      <label for="schedule-students">Chọn học sinh:</label>
-      <ul id="schedule-student-list" class="checkbox-group"></ul>
-      
-      <button onclick="addSchedule()">Thêm lịch học</button>
-      <p id="schedule-status"></p>
     </div>
   </div>
 
