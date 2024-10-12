@@ -84,3 +84,13 @@ label {
   margin-top: 10px;
   display: block;
 }
+/* Các đoạn mã CSS cũ giữ nguyên */
+.section {
+  display: none;
+}
+
+.section.active {
+  display: block;
+}
+
+/* Không có thay đổi nào khác cần thiết cho phần lịch học */
