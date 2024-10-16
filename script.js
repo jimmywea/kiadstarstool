@@ -2,13 +2,13 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/fireba
 import { getFirestore, collection, addDoc, query, where, getDocs, limit, Timestamp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "API_KEY",
-  authDomain: "DOMAIN_NAME",
-  projectId: "PROJECT_ID",
-  storageBucket: "STORAGE_BUCKET",
-  messagingSenderId: "MESSAGING_SENDER_ID",
-  appId: "APP_ID",
-  measurementId: "MEASUREMENT_ID"
+  apiKey: "AIzaSyDL56ekmdndk3wd099KuJWUyogRUa3bwW8",
+  authDomain: "kidstars-7434d.firebaseapp.com",
+  projectId: "kidstars-7434d",
+  storageBucket: "kidstars-7434d.appspot.com",
+  messagingSenderId: "616350873520",
+  appId: "1:616350873520:web:9d765d0bf5a483fa964875",
+  measurementId: "G-FJMK0F1LRN"
 };
 
 const app = initializeApp(firebaseConfig);
