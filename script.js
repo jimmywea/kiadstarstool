@@ -20,13 +20,6 @@ window.showSection = function(sectionId) {
   document.getElementById(sectionId).classList.add('active');
 }
 
-function showToast(message) {
-  const toast = document.getElementById("toast");
-  toast.innerText = message;
-  toast.className = "toast show";
-  setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
-}
-
 window.markAttendance = async function() {
   const name = document.getElementById('student-name').value;
   const time = new Date(document.getElementById('attendance-time').value);
@@ -42,13 +35,10 @@ window.markAttendance = async function() {
       content,
       absent: isAbsent
     });
-    const statusMessage = isAbsent ? 'Đã đánh dấu vắng mặt' : 'Điểm danh thành công';
-    document.getElementById('attendance-status').innerText = statusMessage + ' cho ' + name;
-    showToast(statusMessage + ' cho ' + name);
+    document.getElementById('attendance-status').innerText = isAbsent ? 'Đã đánh dấu vắng mặt' : 'Điểm danh thành công';
   } catch (error) {
     console.error("Lỗi khi điểm danh: ", error);
     document.getElementById('attendance-status').innerText = 'Điểm danh thất bại';
-    showToast("Lỗi: Không thể điểm danh. Vui lòng thử lại.");
   }
 }
 
@@ -144,7 +134,7 @@ window.queryByTime = async function() {
     });
   });
 
-  results.sort((a, b) => a.name.localeCompare(b.name));
+  results.sort((a, b) => a.name.localeCompare(b.name)); // Sắp xếp theo tên học sinh
 
   let resultText = '';
   results.forEach(data => {
@@ -171,8 +161,10 @@ window.addStudent = async function() {
 }
 
 window.exportToExcel = function() {
+  // Lấy dữ liệu từ phần tử hiển thị kết quả và tách thành từng dòng
   const data = document.getElementById('query-time-result').innerText.trim().split('\n');
   
+  // Xử lý dữ liệu để tách từng phần vào các cột khác nhau
   const formattedData = data.map(row => {
     const parts = row.split(' - ');
     const name = parts[0];
@@ -182,14 +174,18 @@ window.exportToExcel = function() {
     const content = parts[4].split(': ')[1];
     return [name, date, className, status, content];
   });
-
+  
+  // Thêm tiêu đề cho các cột
   const worksheetData = [
     ['Tên Học Sinh', 'Thời Gian', 'Môn Học', 'Trạng Thái', 'Nội Dung'],
     ...formattedData
   ];
 
+  // Tạo worksheet và workbook, sau đó sắp xếp theo tên học sinh
   const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, 'Lịch Sử Điểm Danh');
+
+  // Lưu file Excel với tên "LichSuDiemDanh.xlsx"
   XLSX.writeFile(workbook, 'LichSuDiemDanh.xlsx');
 }
