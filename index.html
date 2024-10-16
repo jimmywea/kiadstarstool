@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ứng dụng Điểm danh Học sinh</title>
   <link rel="stylesheet" href="styles.css">
+  <!-- Thư viện XLSX để xuất ra Excel -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
   <div id="app">
@@ -67,6 +69,7 @@
         <option value="MC">MC</option>
       </select>
       <button onclick="queryByTime()">Truy vấn</button>
+      <button onclick="exportToExcel()">Xuất ra Excel</button>
       <p id="query-time-result"></p>
     </div>
 
