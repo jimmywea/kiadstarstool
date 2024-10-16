@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ứng dụng Điểm danh Học sinh</title>
   <link rel="stylesheet" href="styles.css">
+  <!-- Thư viện XLSX để xuất ra Excel -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
@@ -32,6 +33,7 @@
         <option value="MC">MC</option>
       </select>
       <textarea id="attendance-content" placeholder="Nội dung buổi học" rows="4"></textarea>
+      <!-- Checkbox Vắng mặt -->
       <label>
         <input type="checkbox" id="absent-checkbox"> Vắng mặt
       </label>
@@ -88,9 +90,6 @@
       <p id="add-student-status"></p>
     </div>
   </div>
-
-  <!-- Thông báo nổi -->
-  <div id="toast" class="toast"></div>
 
   <!-- JavaScript -->
   <script type="module" src="script.js"></script>
