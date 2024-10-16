@@ -134,7 +134,7 @@ window.queryByTime = async function() {
     });
   });
 
-  results.sort((a, b) => a.date - b.date);
+  results.sort((a, b) => a.name.localeCompare(b.name)); // Sắp xếp theo tên học sinh
 
   let resultText = '';
   results.forEach(data => {
@@ -161,10 +161,31 @@ window.addStudent = async function() {
 }
 
 window.exportToExcel = function() {
-  const data = document.getElementById('query-time-result').innerText.split('\n');
-  const worksheetData = data.map(row => [row]);
+  // Lấy dữ liệu từ phần tử hiển thị kết quả và tách thành từng dòng
+  const data = document.getElementById('query-time-result').innerText.trim().split('\n');
+  
+  // Xử lý dữ liệu để tách từng phần vào các cột khác nhau
+  const formattedData = data.map(row => {
+    const parts = row.split(' - ');
+    const name = parts[0];
+    const date = parts[1];
+    const className = parts[2];
+    const status = parts[3].split(': ')[1];
+    const content = parts[4].split(': ')[1];
+    return [name, date, className, status, content];
+  });
+  
+  // Thêm tiêu đề cho các cột
+  const worksheetData = [
+    ['Tên Học Sinh', 'Thời Gian', 'Môn Học', 'Trạng Thái', 'Nội Dung'],
+    ...formattedData
+  ];
+
+  // Tạo worksheet và workbook, sau đó sắp xếp theo tên học sinh
   const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, 'Lịch Sử Điểm Danh');
+
+  // Lưu file Excel với tên "LichSuDiemDanh.xlsx"
   XLSX.writeFile(workbook, 'LichSuDiemDanh.xlsx');
 }
