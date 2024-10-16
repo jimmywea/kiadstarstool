@@ -2,13 +2,13 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/fireba
 import { getFirestore, collection, addDoc, query, where, getDocs, limit, Timestamp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDL56ekmdndk3wd099KuJWUyogRUa3bwW8",
-  authDomain: "kidstars-7434d.firebaseapp.com",
-  projectId: "kidstars-7434d",
-  storageBucket: "kidstars-7434d.appspot.com",
-  messagingSenderId: "616350873520",
-  appId: "1:616350873520:web:9d765d0bf5a483fa964875",
-  measurementId: "G-FJMK0F1LRN"
+  apiKey: "API_KEY",
+  authDomain: "DOMAIN_NAME",
+  projectId: "PROJECT_ID",
+  storageBucket: "STORAGE_BUCKET",
+  messagingSenderId: "MESSAGING_SENDER_ID",
+  appId: "APP_ID",
+  measurementId: "MEASUREMENT_ID"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -24,6 +24,36 @@ function showToast(message) {
   toast.innerText = message;
   toast.className = "toast show";
   setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+}
+
+window.suggestStudentNames = async function(inputId, suggestionsId) {
+  const input = document.getElementById(inputId);
+  const queryText = input.value.trim().toLowerCase();
+  const suggestionsList = document.getElementById(suggestionsId);
+
+  suggestionsList.innerHTML = '';
+
+  if (queryText.length === 0) return;
+
+  const studentQuery = query(collection(db, 'students'));
+  const querySnapshot = await getDocs(studentQuery);
+
+  querySnapshot.forEach(doc => {
+    const studentData = doc.data();
+    const studentName = studentData.name.toLowerCase();
+
+    if (studentName.includes(queryText)) {
+      const suggestionItem = document.createElement('li');
+      suggestionItem.textContent = studentData.name;
+      
+      suggestionItem.onclick = () => {
+        input.value = studentData.name;
+        suggestionsList.innerHTML = '';
+      };
+
+      suggestionsList.appendChild(suggestionItem);
+    }
+  });
 }
 
 window.markAttendance = async function() {
