@@ -139,22 +139,29 @@ window.queryStudent = async function() {
   document.getElementById('query-student-result').innerText = result || 'Không có dữ liệu';
 }
 
-// Truy vấn điểm danh theo khoảng thời gian và sắp xếp theo thời gian tăng dần
+// Truy vấn điểm danh theo khoảng thời gian và môn học, sắp xếp theo thời gian tăng dần
 window.queryByTime = async function() {
   const startDate = new Date(document.getElementById('query-time-start-date').value);
   const endDate = new Date(document.getElementById('query-time-end-date').value);
   const startTime = document.getElementById('query-start-time').value;
   const endTime = document.getElementById('query-end-time').value;
+  const selectedClass = document.getElementById('query-time-class').value;
 
   const startTimestamp = new Date(`${startDate.toISOString().split('T')[0]}T${startTime}`);
   const endTimestamp = new Date(`${endDate.toISOString().split('T')[0]}T${endTime}`);
 
-  const timeQuery = query(
-    collection(db, 'attendance'), 
-    where("date", ">=", Timestamp.fromDate(startTimestamp)), 
+  // Thiết lập điều kiện truy vấn
+  let conditions = [
+    where("date", ">=", Timestamp.fromDate(startTimestamp)),
     where("date", "<=", Timestamp.fromDate(endTimestamp))
-  );
+  ];
 
+  // Nếu có chọn môn học, thêm điều kiện lọc theo môn
+  if (selectedClass) {
+    conditions.push(where("classes", "array-contains", selectedClass));
+  }
+
+  const timeQuery = query(collection(db, 'attendance'), ...conditions);
   const querySnapshot = await getDocs(timeQuery);
   const results = [];
 
