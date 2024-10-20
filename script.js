@@ -37,22 +37,30 @@ window.markAttendance = async function() {
     });
     const statusElement = document.getElementById('attendance-status');
     statusElement.innerText = isAbsent ? 'Đã đánh dấu vắng mặt' : 'Điểm danh thành công';
-    statusElement.style.display = 'block'; // Hiển thị thông báo
+    statusElement.style.visibility = 'visible'; // Hiển thị thông báo
+    statusElement.style.opacity = '1'; // Hiển thị dần thông báo
 
     // Ẩn thông báo sau 3 giây
     setTimeout(() => {
-      statusElement.style.display = 'none';
+      statusElement.style.opacity = '0'; // Làm mờ dần
+      setTimeout(() => {
+        statusElement.style.visibility = 'hidden'; // Sau khi mờ dần thì ẩn
+      }, 500); // Thời gian khớp với thời gian làm mờ của transition
     }, 3000); // 3000 ms = 3 giây
 
   } catch (error) {
     console.error("Lỗi khi điểm danh: ", error);
     const statusElement = document.getElementById('attendance-status');
     statusElement.innerText = 'Điểm danh thất bại';
-    statusElement.style.display = 'block'; // Hiển thị thông báo
+    statusElement.style.visibility = 'visible'; // Hiển thị thông báo
+    statusElement.style.opacity = '1'; // Hiển thị dần thông báo
 
     // Ẩn thông báo sau 3 giây
     setTimeout(() => {
-      statusElement.style.display = 'none';
+      statusElement.style.opacity = '0'; // Làm mờ dần
+      setTimeout(() => {
+        statusElement.style.visibility = 'hidden'; // Sau khi mờ dần thì ẩn
+      }, 500); // Thời gian khớp với thời gian làm mờ của transition
     }, 3000); // 3000 ms = 3 giây
   }
 }
