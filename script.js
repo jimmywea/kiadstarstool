@@ -134,7 +134,8 @@ window.queryByTime = async function() {
     });
   });
 
-  results.sort((a, b) => a.name.localeCompare(b.name)); // Sắp xếp theo tên học sinh
+  // Sort the results by time (ascending)
+  results.sort((a, b) => new Date(a.date) - new Date(b.date));
 
   let resultText = '';
   results.forEach(data => {
