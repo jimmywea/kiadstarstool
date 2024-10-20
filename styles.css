@@ -84,3 +84,16 @@ label {
   margin-top: 10px;
   display: block;
 }
+
+#query-time-result-container {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  padding: 10px;
+}
+
+#query-time-result p {
+  margin: 0;
+  padding: 5px;
+  border-bottom: 1px solid #ddd;
+}
