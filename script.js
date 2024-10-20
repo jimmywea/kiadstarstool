@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-import { getFirestore, collection, addDoc, query, where, getDocs, limit, Timestamp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, query, where, getDocs, Timestamp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
 // Cấu hình Firebase
 const firebaseConfig = {
@@ -40,6 +40,63 @@ window.markAttendance = async function() {
     console.error("Lỗi khi điểm danh: ", error);
     document.getElementById('attendance-status').innerText = 'Điểm danh thất bại';
   }
+}
+
+window.queryByTime = async function() {
+  const startDate = new Date(document.getElementById('query-time-start-date').value);
+  const endDate = new Date(document.getElementById('query-time-end-date').value);
+  const startTime = document.getElementById('query-start-time').value;
+  const endTime = document.getElementById('query-end-time').value;
+  const selectedClass = document.getElementById('query-time-class').value;
+
+  const startTimestamp = new Date(`${startDate.toISOString().split('T')[0]}T${startTime}`);
+  const endTimestamp = new Date(`${endDate.toISOString().split('T')[0]}T${endTime}`);
+
+  let conditions = [
+    where("date", ">=", Timestamp.fromDate(startTimestamp)),
+    where("date", "<=", Timestamp.fromDate(endTimestamp))
+  ];
+
+  if (selectedClass) {
+    conditions.push(where("classes", "array-contains", selectedClass));
+  }
+
+  const timeQuery = query(collection(db, 'attendance'), ...conditions);
+  const querySnapshot = await getDocs(timeQuery);
+  const results = [];
+
+  querySnapshot.forEach(doc => {
+    const data = doc.data();
+    results.push({
+      name: data.name,
+      date: data.date.toDate(),
+      classes: data.classes,
+      status: data.absent ? 'Vắng mặt' : 'Có mặt',
+      content: data.content || 'Không có'
+    });
+  });
+
+  // Sort the results by time (ascending)
+  results.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  // Create a table to display the results
+  let resultTable = '<table border="1" style="width:100%; border-collapse:collapse;">';
+  resultTable += '<tr><th>Tên Học Sinh</th><th>Thời Gian</th><th>Môn Học</th><th>Trạng Thái</th><th>Nội Dung</th></tr>';
+  
+  results.forEach(data => {
+    resultTable += `<tr>
+      <td>${data.name}</td>
+      <td>${data.date.toLocaleString()}</td>
+      <td>${data.classes.join(', ')}</td>
+      <td>${data.status}</td>
+      <td>${data.content}</td>
+    </tr>`;
+  });
+
+  resultTable += '</table>';
+
+  // Display the table in the result container
+  document.getElementById('query-time-result').innerHTML = resultTable || 'Không có dữ liệu';
 }
 
 window.suggestStudentNames = async function(inputId, suggestionsId) {
@@ -98,51 +155,6 @@ window.queryStudent = async function() {
 
   result += `Tổng số buổi: ${totalSessions}`;
   document.getElementById('query-student-result').innerText = result || 'Không có dữ liệu';
-}
-
-window.queryByTime = async function() {
-  const startDate = new Date(document.getElementById('query-time-start-date').value);
-  const endDate = new Date(document.getElementById('query-time-end-date').value);
-  const startTime = document.getElementById('query-start-time').value;
-  const endTime = document.getElementById('query-end-time').value;
-  const selectedClass = document.getElementById('query-time-class').value;
-
-  const startTimestamp = new Date(`${startDate.toISOString().split('T')[0]}T${startTime}`);
-  const endTimestamp = new Date(`${endDate.toISOString().split('T')[0]}T${endTime}`);
-
-  let conditions = [
-    where("date", ">=", Timestamp.fromDate(startTimestamp)),
-    where("date", "<=", Timestamp.fromDate(endTimestamp))
-  ];
-
-  if (selectedClass) {
-    conditions.push(where("classes", "array-contains", selectedClass));
-  }
-
-  const timeQuery = query(collection(db, 'attendance'), ...conditions);
-  const querySnapshot = await getDocs(timeQuery);
-  const results = [];
-
-  querySnapshot.forEach(doc => {
-    const data = doc.data();
-    results.push({
-      name: data.name,
-      date: data.date.toDate(),
-      classes: data.classes,
-      status: data.absent ? 'Vắng mặt' : 'Có mặt',
-      content: data.content || 'Không có'
-    });
-  });
-
-  // Sort the results by time (ascending)
-  results.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-  let resultText = '';
-  results.forEach(data => {
-    resultText += `${data.name} - ${data.date.toLocaleString()} - ${data.classes.join(', ')} - Trạng thái: ${data.status} - Nội dung: ${data.content}\n`;
-  });
-
-  document.getElementById('query-time-result').innerText = resultText || 'Không có dữ liệu';
 }
 
 window.addStudent = async function() {
