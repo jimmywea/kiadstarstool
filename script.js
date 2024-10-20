@@ -16,8 +16,8 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 window.showSection = function(sectionId) {
-  document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
-  document.getElementById(sectionId).classList.add('active');
+  document.querySelectorAll('.section').forEach(section => section.classList.add('hidden'));
+  document.getElementById(sectionId).classList.remove('hidden');
 }
 
 window.markAttendance = async function() {
@@ -97,6 +97,10 @@ window.queryByTime = async function() {
 
   // Display the table in the result container
   document.getElementById('query-time-result').innerHTML = resultTable || 'Không có dữ liệu';
+
+  // Ẩn các phần khác khi hiển thị bảng
+  document.querySelectorAll('.section').forEach(section => section.classList.add('hidden'));
+  document.getElementById('query-time').classList.remove('hidden');
 }
 
 window.suggestStudentNames = async function(inputId, suggestionsId) {
