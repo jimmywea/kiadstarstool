@@ -201,31 +201,22 @@ window.addStudent = async function() {
 }
 
 window.exportToExcel = function() {
-  // Lấy dữ liệu từ phần tử hiển thị kết quả và tách thành từng dòng
-  const data = document.getElementById('query-time-result').innerText.trim().split('\n');
+  // Lấy bảng kết quả từ HTML
+  const table = document.querySelector("#query-time-result table");
   
-  // Xử lý dữ liệu để tách từng phần vào các cột khác nhau
-  const formattedData = data.map(row => {
-    const parts = row.split(' - ');
-    const name = parts[0];
-    const date = parts[1];
-    const className = parts[2];
-    const status = parts[3].split(': ')[1];
-    const content = parts[4].split(': ')[1];
-    return [name, date, className, status, content];
-  });
+  // Kiểm tra nếu không có bảng
+  if (!table) {
+    alert("Không có dữ liệu để xuất.");
+    return;
+  }
   
-  // Thêm tiêu đề cho các cột
-  const worksheetData = [
-    ['Tên Học Sinh', 'Thời Gian', 'Môn Học', 'Trạng Thái', 'Nội Dung'],
-    ...formattedData
-  ];
-
-  // Tạo worksheet và workbook, sau đó sắp xếp theo tên học sinh
-  const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+  // Chuyển đổi bảng HTML thành worksheet
+  const worksheet = XLSX.utils.table_to_sheet(table);
+  
+  // Tạo workbook và thêm worksheet vào
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, 'Lịch Sử Điểm Danh');
-
-  // Lưu file Excel với tên "LichSuDiemDanh.xlsx"
+  
+  // Xuất file Excel
   XLSX.writeFile(workbook, 'LichSuDiemDanh.xlsx');
 }
