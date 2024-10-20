@@ -65,6 +65,88 @@ window.markAttendance = async function() {
   }
 }
 
+window.queryStudent = async function() {
+  const name = document.getElementById('query-student-name').value;
+  const startDate = new Date(document.getElementById('query-student-start-date').value);
+  const endDate = new Date(document.getElementById('query-student-end-date').value);
+
+  const studentQuery = query(
+    collection(db, 'attendance'), 
+    where("name", "==", name), 
+    where("date", ">=", Timestamp.fromDate(startDate)), 
+    where("date", "<=", Timestamp.fromDate(endDate))
+  );
+
+  const querySnapshot = await getDocs(studentQuery);
+  const results = [];
+  let totalSessions = 0;
+
+  querySnapshot.forEach(doc => {
+    const data = doc.data();
+    const status = data.absent ? 'Vắng mặt' : 'Có mặt';
+    results.push({
+      name: data.name,
+      date: data.date.toDate(),
+      classes: data.classes,
+      status: status,
+      content: data.content || 'Không có'
+    });
+    totalSessions++;
+  });
+
+  // Tạo bảng dữ liệu nếu có kết quả
+  let resultTable = '';
+  if (results.length > 0) {
+    resultTable = '<table border="1" style="width:100%; border-collapse:collapse;">';
+    resultTable += '<tr><th>Tên Học Sinh</th><th>Thời Gian</th><th>Môn Học</th><th>Trạng Thái</th><th>Nội Dung</th></tr>';
+
+    results.forEach(data => {
+      resultTable += `<tr>
+        <td>${data.name}</td>
+        <td>${data.date.toLocaleString()}</td>
+        <td>${data.classes.join(', ')}</td>
+        <td>${data.status}</td>
+        <td>${data.content}</td>
+      </tr>`;
+    });
+
+    resultTable += '</table>';
+  } else {
+    resultTable = 'Không có dữ liệu';
+  }
+
+  // Hiển thị bảng trong container của query student
+  document.getElementById('query-student-result').innerHTML = resultTable;
+
+  // Tạo nút xuất ra Excel nếu có dữ liệu
+  if (results.length > 0) {
+    document.getElementById('export-student-excel').style.display = 'block';
+  } else {
+    document.getElementById('export-student-excel').style.display = 'none';
+  }
+}
+
+window.exportStudentToExcel = function() {
+  // Lấy bảng kết quả từ HTML
+  const table = document.querySelector("#query-student-result table");
+  
+  // Kiểm tra nếu không có bảng
+  if (!table) {
+    alert("Không có dữ liệu để xuất.");
+    return;
+  }
+  
+  // Chuyển đổi bảng HTML thành worksheet
+  const worksheet = XLSX.utils.table_to_sheet(table);
+  
+  // Tạo workbook và thêm worksheet vào
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Lịch Sử Học Sinh');
+  
+  // Xuất file Excel
+  XLSX.writeFile(workbook, 'LichSuHocSinh.xlsx');
+}
+
 window.queryByTime = async function() {
   const startDate = new Date(document.getElementById('query-time-start-date').value);
   const endDate = new Date(document.getElementById('query-time-end-date').value);
@@ -124,80 +206,6 @@ window.queryByTime = async function() {
   // Ẩn các phần khác khi hiển thị bảng
   document.querySelectorAll('.section').forEach(section => section.classList.add('hidden'));
   document.getElementById('query-time').classList.remove('hidden');
-}
-
-window.suggestStudentNames = async function(inputId, suggestionsId) {
-  const input = document.getElementById(inputId);
-  const queryText = input.value.trim().toLowerCase();
-  const suggestionsList = document.getElementById(suggestionsId);
-
-  suggestionsList.innerHTML = '';
-
-  if (queryText.length === 0) return;
-
-  const studentQuery = query(collection(db, 'students'));
-  const querySnapshot = await getDocs(studentQuery);
-
-  querySnapshot.forEach(doc => {
-    const studentData = doc.data();
-    const studentName = studentData.name.toLowerCase();
-
-    if (studentName.includes(queryText)) {
-      const suggestionItem = document.createElement('li');
-      const classes = studentData.classes.join(', ');
-      suggestionItem.textContent = `${studentData.name} - ${classes}`;
-      
-      suggestionItem.onclick = () => {
-        input.value = studentData.name;
-        suggestionsList.innerHTML = '';
-      };
-
-      suggestionsList.appendChild(suggestionItem);
-    }
-  });
-}
-
-window.queryStudent = async function() {
-  const name = document.getElementById('query-student-name').value;
-  const startDate = new Date(document.getElementById('query-student-start-date').value);
-  const endDate = new Date(document.getElementById('query-student-end-date').value);
-
-  const studentQuery = query(
-    collection(db, 'attendance'), 
-    where("name", "==", name), 
-    where("date", ">=", Timestamp.fromDate(startDate)), 
-    where("date", "<=", Timestamp.fromDate(endDate))
-  );
-
-  const querySnapshot = await getDocs(studentQuery);
-  let result = '';
-  let totalSessions = 0;
-
-  querySnapshot.forEach(doc => {
-    const data = doc.data();
-    const status = data.absent ? 'Vắng mặt' : 'Có mặt';
-    result += `${data.name} - ${data.date.toDate().toLocaleString()} - ${data.classes.join(', ')} - Trạng thái: ${status} - Nội dung: ${data.content || 'Không có'}\n`;
-    totalSessions++;
-  });
-
-  result += `Tổng số buổi: ${totalSessions}`;
-  document.getElementById('query-student-result').innerText = result || 'Không có dữ liệu';
-}
-
-window.addStudent = async function() {
-  const name = document.getElementById('new-student-name').value;
-  const subjects = [];
-  ['piano', 'guitar', 'vocal', 'drawing', 'dance', 'mc'].forEach(id => {
-    if (document.getElementById(id).checked) subjects.push(document.getElementById(id).value);
-  });
-
-  try {
-    await addDoc(collection(db, 'students'), { name, classes: subjects });
-    document.getElementById('add-student-status').innerText = 'Thêm học sinh thành công';
-  } catch (error) {
-    console.error("Lỗi khi thêm học sinh mới: ", error);
-    document.getElementById('add-student-status').innerText = 'Thêm học sinh thất bại';
-  }
 }
 
 window.exportToExcel = function() {
