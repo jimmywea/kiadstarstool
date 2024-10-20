@@ -106,10 +106,12 @@ label {
 
 /* Thông báo sau khi điểm danh */
 #attendance-status {
-  display: none; /* Ẩn thông báo mặc định */
+  visibility: hidden; /* Ẩn thông báo mặc định */
   margin-top: 10px;
   font-weight: bold;
   color: green;
+  transition: visibility 0s 0.5s, opacity 0.5s linear; /* Thêm transition để hỗ trợ ẩn mượt hơn */
+  opacity: 0; /* Mặc định thông báo ẩn hoàn toàn */
 }
 
 /* Responsive design for mobile */
