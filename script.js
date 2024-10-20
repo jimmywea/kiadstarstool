@@ -228,3 +228,40 @@ window.exportToExcel = function() {
   // Xuất file Excel
   XLSX.writeFile(workbook, 'LichSuDiemDanh.xlsx');
 }
+
+// Hàm gợi ý tên học sinh khi nhập vào ô
+window.suggestStudentNames = async function(inputId, suggestionsId) {
+  const input = document.getElementById(inputId);
+  const queryText = input.value.trim().toLowerCase();
+  const suggestionsList = document.getElementById(suggestionsId);
+
+  suggestionsList.innerHTML = '';
+
+  // Nếu người dùng không nhập gì, không hiển thị gợi ý
+  if (queryText.length === 0) {
+    return;
+  }
+
+  // Truy vấn Firebase để lấy danh sách học sinh
+  const studentQuery = query(collection(db, 'students'));
+  const querySnapshot = await getDocs(studentQuery);
+
+  // Hiển thị các tên học sinh khớp với kết quả
+  querySnapshot.forEach(doc => {
+    const studentData = doc.data();
+    const studentName = studentData.name.toLowerCase();
+
+    if (studentName.includes(queryText)) {
+      const suggestionItem = document.createElement('li');
+      suggestionItem.textContent = studentData.name;
+      
+      // Khi người dùng nhấn vào gợi ý, điền tên học sinh vào ô nhập
+      suggestionItem.onclick = () => {
+        input.value = studentData.name;
+        suggestionsList.innerHTML = '';
+      };
+
+      suggestionsList.appendChild(suggestionItem);
+    }
+  });
+}
