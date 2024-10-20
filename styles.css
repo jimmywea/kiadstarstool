@@ -16,6 +16,7 @@ body {
   background: #fff;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
 }
 
 /* Styles for table */
@@ -96,6 +97,11 @@ label {
   overflow-y: auto;
   border: 1px solid #ddd;
   padding: 10px;
+}
+
+/* Ẩn các phần không cần thiết */
+.section.hidden {
+  display: none;
 }
 
 /* Responsive design for mobile */
