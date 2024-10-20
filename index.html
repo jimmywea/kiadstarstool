@@ -48,7 +48,12 @@
       <input type="date" id="query-student-start-date">
       <input type="date" id="query-student-end-date">
       <button onclick="queryStudent()">Truy vấn</button>
-      <p id="query-student-result"></p>
+      
+      <!-- Kết quả truy vấn sẽ được hiển thị ở đây -->
+      <div id="query-student-result"></div>
+      
+      <!-- Nút xuất dữ liệu ra Excel (ban đầu ẩn đi) -->
+      <button id="export-student-excel" style="display:none;" onclick="exportStudentToExcel()">Xuất ra Excel</button>
     </div>
 
     <!-- Truy vấn theo thời gian và môn học -->
