@@ -35,10 +35,25 @@ window.markAttendance = async function() {
       content,
       absent: isAbsent
     });
-    document.getElementById('attendance-status').innerText = isAbsent ? 'Đã đánh dấu vắng mặt' : 'Điểm danh thành công';
+    const statusElement = document.getElementById('attendance-status');
+    statusElement.innerText = isAbsent ? 'Đã đánh dấu vắng mặt' : 'Điểm danh thành công';
+    statusElement.style.display = 'block'; // Hiển thị thông báo
+
+    // Ẩn thông báo sau 3 giây
+    setTimeout(() => {
+      statusElement.style.display = 'none';
+    }, 3000); // 3000 ms = 3 giây
+
   } catch (error) {
     console.error("Lỗi khi điểm danh: ", error);
-    document.getElementById('attendance-status').innerText = 'Điểm danh thất bại';
+    const statusElement = document.getElementById('attendance-status');
+    statusElement.innerText = 'Điểm danh thất bại';
+    statusElement.style.display = 'block'; // Hiển thị thông báo
+
+    // Ẩn thông báo sau 3 giây
+    setTimeout(() => {
+      statusElement.style.display = 'none';
+    }, 3000); // 3000 ms = 3 giây
   }
 }
 
