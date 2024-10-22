@@ -37,31 +37,60 @@ window.markAttendance = async function() {
     });
     const statusElement = document.getElementById('attendance-status');
     statusElement.innerText = isAbsent ? 'Đã đánh dấu vắng mặt' : 'Điểm danh thành công';
-    statusElement.style.visibility = 'visible'; // Hiển thị thông báo
-    statusElement.style.opacity = '1'; // Hiển thị dần thông báo
+    statusElement.style.visibility = 'visible'; 
+    statusElement.style.opacity = '1'; 
 
-    // Ẩn thông báo sau 3 giây
     setTimeout(() => {
-      statusElement.style.opacity = '0'; // Làm mờ dần
+      statusElement.style.opacity = '0'; 
       setTimeout(() => {
-        statusElement.style.visibility = 'hidden'; // Sau khi mờ dần thì ẩn
-      }, 500); // Thời gian khớp với thời gian làm mờ của transition
-    }, 3000); // 3000 ms = 3 giây
+        statusElement.style.visibility = 'hidden'; 
+      }, 500); 
+    }, 3000); 
 
   } catch (error) {
     console.error("Lỗi khi điểm danh: ", error);
     const statusElement = document.getElementById('attendance-status');
     statusElement.innerText = 'Điểm danh thất bại';
-    statusElement.style.visibility = 'visible'; // Hiển thị thông báo
-    statusElement.style.opacity = '1'; // Hiển thị dần thông báo
+    statusElement.style.visibility = 'visible'; 
+    statusElement.style.opacity = '1'; 
 
-    // Ẩn thông báo sau 3 giây
     setTimeout(() => {
-      statusElement.style.opacity = '0'; // Làm mờ dần
+      statusElement.style.opacity = '0'; 
       setTimeout(() => {
-        statusElement.style.visibility = 'hidden'; // Sau khi mờ dần thì ẩn
-      }, 500); // Thời gian khớp với thời gian làm mờ của transition
-    }, 3000); // 3000 ms = 3 giây
+        statusElement.style.visibility = 'hidden'; 
+      }, 500); 
+    }, 3000); 
+  }
+}
+
+// Hàm thêm học sinh mới
+window.addStudent = async function() {
+  const name = document.getElementById('new-student-name').value;
+  
+  // Lấy danh sách các môn học mà học sinh tham gia
+  const classes = [];
+  if (document.getElementById('piano').checked) classes.push('Piano');
+  if (document.getElementById('guitar').checked) classes.push('Guitar');
+  if (document.getElementById('vocal').checked) classes.push('Thanh nhạc');
+  if (document.getElementById('drawing').checked) classes.push('Vẽ');
+  if (document.getElementById('dance').checked) classes.push('Nhảy');
+  if (document.getElementById('mc').checked) classes.push('MC');
+
+  // Kiểm tra nếu tên học sinh bị trống hoặc không chọn môn học nào
+  if (name.trim() === '' || classes.length === 0) {
+    document.getElementById('add-student-status').innerText = 'Vui lòng nhập tên và chọn ít nhất một môn học.';
+    return;
+  }
+
+  try {
+    await addDoc(collection(db, 'students'), {
+      name: name,
+      classes: classes
+    });
+    document.getElementById('add-student-status').innerText = 'Thêm học sinh thành công!';
+  } catch (error) {
+    console.error("Lỗi khi thêm học sinh: ", error);
+    document.getElementById('add-student-status').innerText = 'Thêm học sinh thất bại.';
   }
 }
 
@@ -79,7 +108,6 @@ window.queryStudent = async function() {
 
   const querySnapshot = await getDocs(studentQuery);
   const results = [];
-  let totalSessions = 0;
 
   querySnapshot.forEach(doc => {
     const data = doc.data();
@@ -91,10 +119,8 @@ window.queryStudent = async function() {
       status: status,
       content: data.content || 'Không có'
     });
-    totalSessions++;
   });
 
-  // Tạo bảng dữ liệu nếu có kết quả
   let resultTable = '';
   if (results.length > 0) {
     resultTable = '<table border="1" style="width:100%; border-collapse:collapse;">';
@@ -115,10 +141,8 @@ window.queryStudent = async function() {
     resultTable = 'Không có dữ liệu';
   }
 
-  // Hiển thị bảng trong container của query student
   document.getElementById('query-student-result').innerHTML = resultTable;
 
-  // Tạo nút xuất ra Excel nếu có dữ liệu
   if (results.length > 0) {
     document.getElementById('export-student-excel').style.display = 'block';
   } else {
@@ -127,23 +151,18 @@ window.queryStudent = async function() {
 }
 
 window.exportStudentToExcel = function() {
-  // Lấy bảng kết quả từ HTML
   const table = document.querySelector("#query-student-result table");
   
-  // Kiểm tra nếu không có bảng
   if (!table) {
     alert("Không có dữ liệu để xuất.");
     return;
   }
   
-  // Chuyển đổi bảng HTML thành worksheet
   const worksheet = XLSX.utils.table_to_sheet(table);
   
-  // Tạo workbook và thêm worksheet vào
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, 'Lịch Sử Học Sinh');
   
-  // Xuất file Excel
   XLSX.writeFile(workbook, 'LichSuHocSinh.xlsx');
 }
 
@@ -181,10 +200,8 @@ window.queryByTime = async function() {
     });
   });
 
-  // Sort the results by time (ascending)
   results.sort((a, b) => new Date(a.date) - new Date(b.date));
 
-  // Create a table to display the results
   let resultTable = '<table border="1" style="width:100%; border-collapse:collapse;">';
   resultTable += '<tr><th>Tên Học Sinh</th><th>Thời Gian</th><th>Môn Học</th><th>Trạng Thái</th><th>Nội Dung</th></tr>';
   
@@ -200,36 +217,27 @@ window.queryByTime = async function() {
 
   resultTable += '</table>';
 
-  // Display the table in the result container
   document.getElementById('query-time-result').innerHTML = resultTable || 'Không có dữ liệu';
-
-  // Ẩn các phần khác khi hiển thị bảng
   document.querySelectorAll('.section').forEach(section => section.classList.add('hidden'));
   document.getElementById('query-time').classList.remove('hidden');
 }
 
 window.exportToExcel = function() {
-  // Lấy bảng kết quả từ HTML
   const table = document.querySelector("#query-time-result table");
   
-  // Kiểm tra nếu không có bảng
   if (!table) {
     alert("Không có dữ liệu để xuất.");
     return;
   }
   
-  // Chuyển đổi bảng HTML thành worksheet
   const worksheet = XLSX.utils.table_to_sheet(table);
   
-  // Tạo workbook và thêm worksheet vào
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, 'Lịch Sử Điểm Danh');
   
-  // Xuất file Excel
   XLSX.writeFile(workbook, 'LichSuDiemDanh.xlsx');
 }
 
-// Hàm gợi ý tên học sinh khi nhập vào ô
 window.suggestStudentNames = async function(inputId, suggestionsId) {
   const input = document.getElementById(inputId);
   const queryText = input.value.trim().toLowerCase();
@@ -237,16 +245,13 @@ window.suggestStudentNames = async function(inputId, suggestionsId) {
 
   suggestionsList.innerHTML = '';
 
-  // Nếu người dùng không nhập gì, không hiển thị gợi ý
   if (queryText.length === 0) {
     return;
   }
 
-  // Truy vấn Firebase để lấy danh sách học sinh
   const studentQuery = query(collection(db, 'students'));
   const querySnapshot = await getDocs(studentQuery);
 
-  // Hiển thị các tên học sinh khớp với kết quả
   querySnapshot.forEach(doc => {
     const studentData = doc.data();
     const studentName = studentData.name.toLowerCase();
@@ -255,7 +260,6 @@ window.suggestStudentNames = async function(inputId, suggestionsId) {
       const suggestionItem = document.createElement('li');
       suggestionItem.textContent = studentData.name;
       
-      // Khi người dùng nhấn vào gợi ý, điền tên học sinh vào ô nhập
       suggestionItem.onclick = () => {
         input.value = studentData.name;
         suggestionsList.innerHTML = '';
