@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-import { getFirestore, collection, addDoc, query, where, getDocs, Timestamp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, query, where, getDocs, limit, Timestamp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
 // Cấu hình Firebase
 const firebaseConfig = {
@@ -15,11 +15,13 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+// Hiển thị từng section khi bấm nút
 window.showSection = function(sectionId) {
   document.querySelectorAll('.section').forEach(section => section.classList.add('hidden'));
   document.getElementById(sectionId).classList.remove('hidden');
 }
 
+// Điểm danh học sinh
 window.markAttendance = async function() {
   const name = document.getElementById('student-name').value;
   const time = new Date(document.getElementById('attendance-time').value);
@@ -76,7 +78,6 @@ window.addStudent = async function() {
   if (document.getElementById('dance').checked) classes.push('Nhảy');
   if (document.getElementById('mc').checked) classes.push('MC');
 
-  // Kiểm tra nếu tên học sinh bị trống hoặc không chọn môn học nào
   if (name.trim() === '' || classes.length === 0) {
     document.getElementById('add-student-status').innerText = 'Vui lòng nhập tên và chọn ít nhất một môn học.';
     return;
@@ -94,6 +95,7 @@ window.addStudent = async function() {
   }
 }
 
+// Truy vấn học sinh
 window.queryStudent = async function() {
   const name = document.getElementById('query-student-name').value;
   const startDate = new Date(document.getElementById('query-student-start-date').value);
@@ -103,7 +105,8 @@ window.queryStudent = async function() {
     collection(db, 'attendance'), 
     where("name", "==", name), 
     where("date", ">=", Timestamp.fromDate(startDate)), 
-    where("date", "<=", Timestamp.fromDate(endDate))
+    where("date", "<=", Timestamp.fromDate(endDate)),
+    limit(50)  // Tối ưu hóa: Giới hạn số lượng tài liệu trả về
   );
 
   const querySnapshot = await getDocs(studentQuery);
@@ -150,22 +153,7 @@ window.queryStudent = async function() {
   }
 }
 
-window.exportStudentToExcel = function() {
-  const table = document.querySelector("#query-student-result table");
-  
-  if (!table) {
-    alert("Không có dữ liệu để xuất.");
-    return;
-  }
-  
-  const worksheet = XLSX.utils.table_to_sheet(table);
-  
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, 'Lịch Sử Học Sinh');
-  
-  XLSX.writeFile(workbook, 'LichSuHocSinh.xlsx');
-}
-
+// Truy vấn theo thời gian
 window.queryByTime = async function() {
   const startDate = new Date(document.getElementById('query-time-start-date').value);
   const endDate = new Date(document.getElementById('query-time-end-date').value);
@@ -185,7 +173,7 @@ window.queryByTime = async function() {
     conditions.push(where("classes", "array-contains", selectedClass));
   }
 
-  const timeQuery = query(collection(db, 'attendance'), ...conditions);
+  const timeQuery = query(collection(db, 'attendance'), ...conditions, limit(50)); // Giới hạn tài liệu
   const querySnapshot = await getDocs(timeQuery);
   const results = [];
 
@@ -222,6 +210,7 @@ window.queryByTime = async function() {
   document.getElementById('query-time').classList.remove('hidden');
 }
 
+// Hàm xuất Excel
 window.exportToExcel = function() {
   const table = document.querySelector("#query-time-result table");
   
@@ -238,6 +227,7 @@ window.exportToExcel = function() {
   XLSX.writeFile(workbook, 'LichSuDiemDanh.xlsx');
 }
 
+// Gợi ý tên học sinh
 window.suggestStudentNames = async function(inputId, suggestionsId) {
   const input = document.getElementById(inputId);
   const queryText = input.value.trim().toLowerCase();
@@ -249,7 +239,7 @@ window.suggestStudentNames = async function(inputId, suggestionsId) {
     return;
   }
 
-  const studentQuery = query(collection(db, 'students'));
+  const studentQuery = query(collection(db, 'students'), limit(10)); // Giới hạn số lượng học sinh trả về
   const querySnapshot = await getDocs(studentQuery);
 
   querySnapshot.forEach(doc => {
