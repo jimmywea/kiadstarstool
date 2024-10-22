@@ -1,3 +1,4 @@
+/* Tổng thể cho toàn trang */
 body {
   font-family: Arial, sans-serif;
   margin: 0;
@@ -5,93 +6,118 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  min-height: 100vh;
   background-color: #f5f5f5;
 }
 
 #app {
   width: 100%;
-  max-width: 400px;
+  max-width: 500px;
   padding: 20px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  position: relative;
 }
 
-/* Styles for table */
+/* Định dạng bảng */
 table {
   width: 100%;
   border-collapse: collapse;
   overflow-x: auto;
-  display: block;
 }
 
 th, td {
-  padding: 8px;
+  padding: 12px;
   text-align: left;
   border: 1px solid #ddd;
   white-space: nowrap;
 }
 
 th {
-  background-color: #f2f2f2;
+  background-color: #007bff;
+  color: white;
 }
 
+td {
+  background-color: #f9f9f9;
+}
+
+/* Nút điều hướng */
 .nav button {
   width: 100%;
-  padding: 10px;
+  padding: 12px;
   margin: 5px 0;
   background-color: #007bff;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
+.nav button:hover {
+  background-color: #0056b3;
+}
+
+/* Định dạng cho các trường input, select, textarea và nút */
 input, button, select, textarea {
   width: 100%;
   padding: 10px;
-  margin: 5px 0;
+  margin: 8px 0;
   border: 1px solid #ddd;
-  border-radius: 4px;
+  border-radius: 6px;
+  box-sizing: border-box;
 }
 
 button {
   background-color: #28a745;
   color: white;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
+button:hover {
+  background-color: #218838;
+}
+
+/* Gợi ý danh sách */
 .suggestions-list {
   list-style-type: none;
   padding: 0;
-  margin-top: 0;
-  max-height: 100px;
+  margin: 0;
+  max-height: 150px;
   overflow-y: auto;
   border: 1px solid #ddd;
   background-color: #fff;
   position: absolute;
   width: 90%;
-  z-index: 10;
+  z-index: 100;
 }
 
 .suggestions-list li {
-  padding: 5px;
+  padding: 10px;
   cursor: pointer;
+  border-bottom: 1px solid #ddd;
 }
 
 .suggestions-list li:hover {
   background-color: #f1f1f1;
 }
 
+/* Định dạng textarea */
 textarea {
   resize: vertical;
 }
 
 label {
-  margin-top: 10px;
+  margin-top: 12px;
   display: block;
 }
 
+/* Container cho kết quả truy vấn */
 #query-time-result-container {
   max-height: 300px;
   overflow-y: auto;
@@ -106,35 +132,25 @@ label {
 
 /* Thông báo sau khi điểm danh */
 #attendance-status {
-  visibility: hidden; /* Ẩn thông báo mặc định */
+  visibility: hidden; 
   margin-top: 10px;
   font-weight: bold;
   color: green;
-  transition: visibility 0s 0.5s, opacity 0.5s linear; /* Thêm transition để hỗ trợ ẩn mượt hơn */
-  opacity: 0; /* Mặc định thông báo ẩn hoàn toàn */
+  transition: visibility 0s 0.5s, opacity 0.5s linear;
+  opacity: 0; 
 }
 
 /* Responsive design for mobile */
 @media screen and (max-width: 600px) {
   #app {
-    padding: 10px;
+    padding: 15px;
     width: 100%;
     max-width: 100%;
   }
 
-  table {
-    width: 100%;
-    display: block;
-    overflow-x: auto;
-  }
-
   th, td {
-    font-size: 12px;
-    padding: 6px;
-  }
-
-  th {
     font-size: 14px;
+    padding: 10px;
   }
 
   input, button, select, textarea {
@@ -143,7 +159,7 @@ label {
   }
 
   .nav button {
-    padding: 8px;
+    padding: 10px;
     font-size: 14px;
   }
 }
