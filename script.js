@@ -256,10 +256,11 @@ window.suggestStudentNames = async function(inputId, suggestionsId) {
   querySnapshot.forEach(doc => {
     const studentData = doc.data();
     const studentName = studentData.name.toLowerCase();
+    const studentClasses = studentData.classes.join(', '); // Ghép các môn học thành chuỗi
 
     if (studentName.startsWith(queryText) && matches < 10) {  // Chỉ lấy các tên bắt đầu với queryText và giới hạn 10 kết quả
       const suggestionItem = document.createElement('li');
-      suggestionItem.textContent = studentData.name;
+      suggestionItem.textContent = `${studentData.name} (${studentClasses})`; // Hiển thị tên kèm theo môn học
       
       suggestionItem.onclick = () => {
         input.value = studentData.name;
