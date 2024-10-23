@@ -29,6 +29,11 @@ window.markAttendance = async function() {
   const content = document.getElementById('attendance-content').value;
   const isAbsent = document.getElementById('absent-checkbox').checked;
 
+  if (!name || !selectedClass || !time) {
+    alert("Vui lòng điền đầy đủ thông tin!");
+    return;
+  }
+
   try {
     await addDoc(collection(db, 'attendance'), { 
       name, 
@@ -101,12 +106,17 @@ window.queryStudent = async function() {
   const startDate = new Date(document.getElementById('query-student-start-date').value);
   const endDate = new Date(document.getElementById('query-student-end-date').value);
 
+  if (!name || !startDate || !endDate) {
+    alert("Vui lòng điền đầy đủ thông tin để truy vấn!");
+    return;
+  }
+
   const studentQuery = query(
     collection(db, 'attendance'), 
     where("name", "==", name), 
     where("date", ">=", Timestamp.fromDate(startDate)), 
     where("date", "<=", Timestamp.fromDate(endDate)),
-    limit(50)  // Tối ưu hóa: Giới hạn số lượng tài liệu trả về
+    limit(50)  // Giới hạn số lượng tài liệu trả về
   );
 
   const querySnapshot = await getDocs(studentQuery);
@@ -239,14 +249,15 @@ window.suggestStudentNames = async function(inputId, suggestionsId) {
     return;
   }
 
-  const studentQuery = query(collection(db, 'students'), limit(10)); // Giới hạn số lượng học sinh trả về
+  const studentQuery = query(collection(db, 'students')); // Tạm thời bỏ limit để xem tất cả dữ liệu
   const querySnapshot = await getDocs(studentQuery);
 
+  let matches = 0;  // Đếm số gợi ý
   querySnapshot.forEach(doc => {
     const studentData = doc.data();
     const studentName = studentData.name.toLowerCase();
 
-    if (studentName.includes(queryText)) {
+    if (studentName.startsWith(queryText) && matches < 10) {  // Chỉ lấy các tên bắt đầu với queryText và giới hạn 10 kết quả
       const suggestionItem = document.createElement('li');
       suggestionItem.textContent = studentData.name;
       
@@ -256,6 +267,11 @@ window.suggestStudentNames = async function(inputId, suggestionsId) {
       };
 
       suggestionsList.appendChild(suggestionItem);
+      matches++;
     }
   });
+
+  if (matches === 0) {
+    suggestionsList.innerHTML = '<li>Không tìm thấy kết quả</li>';
+  }
 }
