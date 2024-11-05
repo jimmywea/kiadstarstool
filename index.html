@@ -10,7 +10,14 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
-  <div id="app">
+  <div id="auth-section">
+    <h2>Đăng nhập</h2>
+    <input type="email" id="email" placeholder="Email" required>
+    <input type="password" id="password" placeholder="Mật khẩu" required>
+    <button onclick="loginUser(document.getElementById('email').value, document.getElementById('password').value)">Đăng nhập</button>
+  </div>
+
+  <div id="app" style="display: none;">
     <!-- Thanh điều hướng -->
     <div class="nav">
       <button onclick="showSection('attendance')" aria-label="Điểm danh học sinh">Điểm danh</button>
@@ -49,12 +56,8 @@
       <input type="date" id="query-student-start-date" aria-label="Ngày bắt đầu">
       <input type="date" id="query-student-end-date" aria-label="Ngày kết thúc">
       <button onclick="queryStudent()" aria-label="Truy vấn học sinh">Truy vấn</button>
-      
-      <!-- Kết quả truy vấn sẽ được hiển thị ở đây -->
       <div id="query-student-result"></div>
-      
-      <!-- Nút xuất dữ liệu ra Excel (ban đầu ẩn đi) -->
-      <button id="export-student-excel" style="display:none;" onclick="exportStudentToExcel()" aria-label="Xuất dữ liệu ra Excel">Xuất ra Excel</button>
+      <button id="export-student-excel" style="display:none;" onclick="exportToExcel()" aria-label="Xuất dữ liệu ra Excel">Xuất ra Excel</button>
     </div>
 
     <!-- Truy vấn theo thời gian và môn học -->
