@@ -1,5 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
 import { getFirestore, collection, addDoc, query, where, getDocs, limit, Timestamp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 
 // Cấu hình Firebase
 const firebaseConfig = {
@@ -14,6 +15,34 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
+
+// Hàm đăng nhập
+window.loginUser = function(email, password) {
+  signInWithEmailAndPassword(auth, email, password)
+    .then((userCredential) => {
+      console.log("Đăng nhập thành công:", userCredential.user);
+      document.getElementById('auth-section').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+    })
+    .catch((error) => {
+      console.error("Lỗi khi đăng nhập:", error.message);
+      alert("Đăng nhập thất bại: " + error.message);
+    });
+};
+
+// Kiểm tra trạng thái đăng nhập
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    console.log("Người dùng đã đăng nhập:", user);
+    document.getElementById('auth-section').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+  } else {
+    console.log("Người dùng chưa đăng nhập");
+    document.getElementById('auth-section').style.display = 'block';
+    document.getElementById('app').style.display = 'none';
+  }
+});
 
 // Hiển thị từng section khi bấm nút
 window.showSection = function(sectionId) {
@@ -73,8 +102,6 @@ window.markAttendance = async function() {
 // Hàm thêm học sinh mới
 window.addStudent = async function() {
   const name = document.getElementById('new-student-name').value;
-  
-  // Lấy danh sách các môn học mà học sinh tham gia
   const classes = [];
   if (document.getElementById('piano').checked) classes.push('Piano');
   if (document.getElementById('guitar').checked) classes.push('Guitar');
@@ -89,10 +116,7 @@ window.addStudent = async function() {
   }
 
   try {
-    await addDoc(collection(db, 'students'), {
-      name: name,
-      classes: classes
-    });
+    await addDoc(collection(db, 'students'), { name, classes });
     document.getElementById('add-student-status').innerText = 'Thêm học sinh thành công!';
   } catch (error) {
     console.error("Lỗi khi thêm học sinh: ", error);
@@ -116,7 +140,7 @@ window.queryStudent = async function() {
     where("name", "==", name), 
     where("date", ">=", Timestamp.fromDate(startDate)), 
     where("date", "<=", Timestamp.fromDate(endDate)),
-    limit(50)  // Giới hạn số lượng tài liệu trả về
+    limit(50)
   );
 
   const querySnapshot = await getDocs(studentQuery);
@@ -155,12 +179,7 @@ window.queryStudent = async function() {
   }
 
   document.getElementById('query-student-result').innerHTML = resultTable;
-
-  if (results.length > 0) {
-    document.getElementById('export-student-excel').style.display = 'block';
-  } else {
-    document.getElementById('export-student-excel').style.display = 'none';
-  }
+  document.getElementById('export-student-excel').style.display = results.length > 0 ? 'block' : 'none';
 }
 
 // Truy vấn theo thời gian
@@ -183,7 +202,7 @@ window.queryByTime = async function() {
     conditions.push(where("classes", "array-contains", selectedClass));
   }
 
-  const timeQuery = query(collection(db, 'attendance'), ...conditions, limit(50)); // Giới hạn tài liệu
+  const timeQuery = query(collection(db, 'attendance'), ...conditions, limit(50));
   const querySnapshot = await getDocs(timeQuery);
   const results = [];
 
@@ -202,7 +221,7 @@ window.queryByTime = async function() {
 
   let resultTable = '<table border="1" style="width:100%; border-collapse:collapse;">';
   resultTable += '<tr><th>Tên Học Sinh</th><th>Thời Gian</th><th>Môn Học</th><th>Trạng Thái</th><th>Nội Dung</th></tr>';
-  
+
   results.forEach(data => {
     resultTable += `<tr>
       <td>${data.name}</td>
@@ -214,26 +233,19 @@ window.queryByTime = async function() {
   });
 
   resultTable += '</table>';
-
   document.getElementById('query-time-result').innerHTML = resultTable || 'Không có dữ liệu';
-  document.querySelectorAll('.section').forEach(section => section.classList.add('hidden'));
-  document.getElementById('query-time').classList.remove('hidden');
 }
 
 // Hàm xuất Excel
 window.exportToExcel = function() {
   const table = document.querySelector("#query-time-result table");
-  
   if (!table) {
     alert("Không có dữ liệu để xuất.");
     return;
   }
-  
   const worksheet = XLSX.utils.table_to_sheet(table);
-  
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, 'Lịch Sử Điểm Danh');
-  
   XLSX.writeFile(workbook, 'LichSuDiemDanh.xlsx');
 }
 
@@ -242,31 +254,26 @@ window.suggestStudentNames = async function(inputId, suggestionsId) {
   const input = document.getElementById(inputId);
   const queryText = input.value.trim().toLowerCase();
   const suggestionsList = document.getElementById(suggestionsId);
-
   suggestionsList.innerHTML = '';
 
-  if (queryText.length === 0) {
-    return;
-  }
+  if (queryText.length === 0) return;
 
-  const studentQuery = query(collection(db, 'students')); // Tạm thời bỏ limit để xem tất cả dữ liệu
+  const studentQuery = query(collection(db, 'students'));
   const querySnapshot = await getDocs(studentQuery);
 
-  let matches = 0;  // Đếm số gợi ý
+  let matches = 0;
   querySnapshot.forEach(doc => {
     const studentData = doc.data();
     const studentName = studentData.name.toLowerCase();
-    const studentClasses = studentData.classes.join(', '); // Ghép các môn học thành chuỗi
+    const studentClasses = studentData.classes.join(', ');
 
-    if (studentName.startsWith(queryText) && matches < 10) {  // Chỉ lấy các tên bắt đầu với queryText và giới hạn 10 kết quả
+    if (studentName.startsWith(queryText) && matches < 10) {
       const suggestionItem = document.createElement('li');
-      suggestionItem.textContent = `${studentData.name} (${studentClasses})`; // Hiển thị tên kèm theo môn học
-      
+      suggestionItem.textContent = `${studentData.name} (${studentClasses})`;
       suggestionItem.onclick = () => {
         input.value = studentData.name;
         suggestionsList.innerHTML = '';
       };
-
       suggestionsList.appendChild(suggestionItem);
       matches++;
     }
