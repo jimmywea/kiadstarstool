@@ -34,11 +34,9 @@ window.loginUser = function(email, password) {
 // Kiểm tra trạng thái đăng nhập
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    console.log("Người dùng đã đăng nhập:", user);
     document.getElementById('auth-section').style.display = 'none';
     document.getElementById('app').style.display = 'block';
   } else {
-    console.log("Người dùng chưa đăng nhập");
     document.getElementById('auth-section').style.display = 'block';
     document.getElementById('app').style.display = 'none';
   }
@@ -48,24 +46,23 @@ onAuthStateChanged(auth, (user) => {
 window.showSection = function(sectionId) {
   document.querySelectorAll('.section').forEach(section => section.classList.add('hidden'));
   document.getElementById(sectionId).classList.remove('hidden');
-}
+};
 
 // Điểm danh học sinh
 window.markAttendance = async function() {
-  const name = document.getElementById('student-name').value;
-  const time = new Date(document.getElementById('attendance-time').value);
+  const name = document.getElementById('student-name').value.trim();
+  const time = document.getElementById('attendance-time').value;
   const selectedClass = document.getElementById('attendance-class').value;
-  const content = document.getElementById('attendance-content').value;
+  const content = document.getElementById('attendance-content').value.trim();
   const isAbsent = document.getElementById('absent-checkbox').checked;
 
-  if (!name || !selectedClass || !time) {
+  if (!name || !time || !selectedClass) {
     alert("Vui lòng điền đầy đủ thông tin!");
     return;
   }
 
   try {
-    const studentRef = collection(db, 'students');
-    const studentQuery = query(studentRef, where("name", "==", name), limit(1));
+    const studentQuery = query(collection(db, 'students'), where("name", "==", name), limit(1));
     const studentSnapshot = await getDocs(studentQuery);
 
     if (studentSnapshot.empty) {
@@ -74,237 +71,108 @@ window.markAttendance = async function() {
     }
 
     const studentDoc = studentSnapshot.docs[0];
-    const studentData = studentDoc.data();
-    let numberOfLessons = studentData.numberOfLessons || 0;
+    let numberOfLessons = studentDoc.data().numberOfLessons || 0;
 
-    if (numberOfLessons > 0 && !isAbsent) {
-      numberOfLessons--; // Giảm số buổi học
-    }
+    if (numberOfLessons > 0 && !isAbsent) numberOfLessons--;
 
-    await addDoc(collection(db, 'attendance'), { 
-      name, 
-      date: Timestamp.fromDate(time),
+    await addDoc(collection(db, 'attendance'), {
+      name,
+      date: Timestamp.fromDate(new Date(time)),
       classes: [selectedClass],
       content,
       absent: isAbsent
     });
 
-    // Cập nhật số buổi học còn lại
-    const studentDocRef = doc(db, 'students', studentDoc.id);
-    await updateDoc(studentDocRef, { numberOfLessons });
+    await updateDoc(doc(db, 'students', studentDoc.id), { numberOfLessons });
 
-    const statusElement = document.getElementById('attendance-status');
-    statusElement.innerText = isAbsent 
-      ? 'Đã đánh dấu vắng mặt' 
-      : `Điểm danh thành công. Số buổi học còn lại: ${numberOfLessons}`;
-    statusElement.style.visibility = 'visible'; 
-    statusElement.style.opacity = '1'; 
-
-    setTimeout(() => {
-      statusElement.style.opacity = '0'; 
-      setTimeout(() => {
-        statusElement.style.visibility = 'hidden'; 
-      }, 500); 
-    }, 3000); 
-
+    alert(isAbsent
+      ? `Đã đánh dấu vắng mặt cho học sinh ${name}.`
+      : `Điểm danh thành công! Số buổi học còn lại: ${numberOfLessons}`);
   } catch (error) {
-    console.error("Lỗi khi điểm danh: ", error);
-    const statusElement = document.getElementById('attendance-status');
-    statusElement.innerText = 'Điểm danh thất bại';
-    statusElement.style.visibility = 'visible'; 
-    statusElement.style.opacity = '1'; 
-
-    setTimeout(() => {
-      statusElement.style.opacity = '0'; 
-      setTimeout(() => {
-        statusElement.style.visibility = 'hidden'; 
-      }, 500); 
-    }, 3000); 
+    console.error("Lỗi khi điểm danh:", error);
+    alert("Điểm danh thất bại.");
   }
-}
+};
 
-// Hàm thêm học sinh mới
+// Thêm học sinh mới
 window.addStudent = async function() {
-  const name = document.getElementById('new-student-name').value;
+  const name = document.getElementById('new-student-name').value.trim();
   const numberOfLessons = parseInt(document.getElementById('number-of-lessons').value, 10);
   const classes = [];
-  if (document.getElementById('piano').checked) classes.push('Piano');
-  if (document.getElementById('guitar').checked) classes.push('Guitar');
-  if (document.getElementById('vocal').checked) classes.push('Thanh nhạc');
-  if (document.getElementById('drawing').checked) classes.push('Vẽ');
-  if (document.getElementById('dance').checked) classes.push('Nhảy');
-  if (document.getElementById('mc').checked) classes.push('MC');
 
-  if (name.trim() === '' || classes.length === 0 || isNaN(numberOfLessons) || numberOfLessons < 1) {
-    document.getElementById('add-student-status').innerText = 'Vui lòng nhập tên, chọn môn học và số buổi hợp lệ.';
+  if (document.getElementById('piano').checked) classes.push("Piano");
+  if (document.getElementById('guitar').checked) classes.push("Guitar");
+  if (document.getElementById('vocal').checked) classes.push("Thanh nhạc");
+  if (document.getElementById('drawing').checked) classes.push("Vẽ");
+  if (document.getElementById('dance').checked) classes.push("Nhảy");
+  if (document.getElementById('mc').checked) classes.push("MC");
+
+  if (!name || isNaN(numberOfLessons) || numberOfLessons < 1 || classes.length === 0) {
+    alert("Vui lòng nhập thông tin hợp lệ!");
     return;
   }
 
   try {
-    await addDoc(collection(db, 'students'), { name, classes, numberOfLessons });
-    document.getElementById('add-student-status').innerText = 'Thêm học sinh thành công!';
+    await addDoc(collection(db, 'students'), { name, numberOfLessons, classes });
+    alert("Thêm học sinh thành công!");
   } catch (error) {
-    console.error("Lỗi khi thêm học sinh: ", error);
-    document.getElementById('add-student-status').innerText = 'Thêm học sinh thất bại.';
+    console.error("Lỗi khi thêm học sinh:", error);
+    alert("Thêm học sinh thất bại.");
   }
-}
+};
 
 // Truy vấn học sinh
 window.queryStudent = async function() {
-  const name = document.getElementById('query-student-name').value;
+  const name = document.getElementById('query-student-name').value.trim();
   const startDate = new Date(document.getElementById('query-student-start-date').value);
   const endDate = new Date(document.getElementById('query-student-end-date').value);
 
-  if (!name || !startDate || !endDate) {
-    alert("Vui lòng điền đầy đủ thông tin để truy vấn!");
+  if (!name || isNaN(startDate) || isNaN(endDate)) {
+    alert("Vui lòng điền đầy đủ thông tin!");
     return;
   }
 
-  const studentQuery = query(
-    collection(db, 'attendance'), 
-    where("name", "==", name), 
-    where("date", ">=", Timestamp.fromDate(startDate)), 
-    where("date", "<=", Timestamp.fromDate(endDate)),
-    limit(50)
-  );
+  try {
+    const attendanceQuery = query(
+      collection(db, 'attendance'),
+      where("name", "==", name),
+      where("date", ">=", Timestamp.fromDate(startDate)),
+      where("date", "<=", Timestamp.fromDate(endDate)),
+      limit(50)
+    );
 
-  const querySnapshot = await getDocs(studentQuery);
-  const results = [];
+    const attendanceSnapshot = await getDocs(attendanceQuery);
 
-  querySnapshot.forEach(doc => {
-    const data = doc.data();
-    const status = data.absent ? 'Vắng mặt' : 'Có mặt';
-    results.push({
-      name: data.name,
-      date: data.date.toDate(),
-      classes: data.classes,
-      status: status,
-      content: data.content || 'Không có'
-    });
-  });
-
-  let resultTable = '';
-  if (results.length > 0) {
-    resultTable = '<table border="1" style="width:100%; border-collapse:collapse;">';
-    resultTable += '<tr><th>Tên Học Sinh</th><th>Thời Gian</th><th>Môn Học</th><th>Trạng Thái</th><th>Nội Dung</th></tr>';
-
-    results.forEach(data => {
-      resultTable += `<tr>
-        <td>${data.name}</td>
-        <td>${data.date.toLocaleString()}</td>
-        <td>${data.classes.join(', ')}</td>
-        <td>${data.status}</td>
-        <td>${data.content}</td>
-      </tr>`;
+    let resultHtml = "";
+    attendanceSnapshot.forEach(doc => {
+      const data = doc.data();
+      resultHtml += `
+        <tr>
+          <td>${data.name}</td>
+          <td>${new Date(data.date.seconds * 1000).toLocaleString()}</td>
+          <td>${data.classes.join(", ")}</td>
+          <td>${data.absent ? "Vắng mặt" : "Có mặt"}</td>
+          <td>${data.content || "Không có nội dung"}</td>
+        </tr>`;
     });
 
-    resultTable += '</table>';
-  } else {
-    resultTable = 'Không có dữ liệu';
+    document.getElementById('query-student-result').innerHTML = resultHtml || `<tr><td colspan="5">Không có dữ liệu.</td></tr>`;
+  } catch (error) {
+    console.error("Lỗi khi truy vấn:", error);
+    alert("Truy vấn thất bại.");
   }
+};
 
-  document.getElementById('query-student-result').innerHTML = resultTable;
-  document.getElementById('export-student-excel').style.display = results.length > 0 ? 'block' : 'none';
-}
-
-// Truy vấn theo thời gian
-window.queryByTime = async function() {
-  const startDate = new Date(document.getElementById('query-time-start-date').value);
-  const endDate = new Date(document.getElementById('query-time-end-date').value);
-  const startTime = document.getElementById('query-start-time').value;
-  const endTime = document.getElementById('query-end-time').value;
-  const selectedClass = document.getElementById('query-time-class').value;
-
-  const startTimestamp = new Date(`${startDate.toISOString().split('T')[0]}T${startTime}`);
-  const endTimestamp = new Date(`${endDate.toISOString().split('T')[0]}T${endTime}`);
-
-  let conditions = [
-    where("date", ">=", Timestamp.fromDate(startTimestamp)),
-    where("date", "<=", Timestamp.fromDate(endTimestamp))
-  ];
-
-  if (selectedClass) {
-    conditions.push(where("classes", "array-contains", selectedClass));
-  }
-
-  const timeQuery = query(collection(db, 'attendance'), ...conditions, limit(50));
-  const querySnapshot = await getDocs(timeQuery);
-  const results = [];
-
-  querySnapshot.forEach(doc => {
-    const data = doc.data();
-    results.push({
-      name: data.name,
-      date: data.date.toDate(),
-      classes: data.classes,
-      status: data.absent ? 'Vắng mặt' : 'Có mặt',
-      content: data.content || 'Không có'
-    });
-  });
-
-  results.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-  let resultTable = '<table border="1" style="width:100%; border-collapse:collapse;">';
-  resultTable += '<tr><th>Tên Học Sinh</th><th>Thời Gian</th><th>Môn Học</th><th>Trạng Thái</th><th>Nội Dung</th></tr>';
-
-  results.forEach(data => {
-    resultTable += `<tr>
-      <td>${data.name}</td>
-      <td>${data.date.toLocaleString()}</td>
-      <td>${data.classes.join(', ')}</td>
-      <td>${data.status}</td>
-      <td>${data.content}</td>
-    </tr>`;
-  });
-
-  resultTable += '</table>';
-  document.getElementById('query-time-result').innerHTML = resultTable || 'Không có dữ liệu';
-}
-
-// Hàm xuất Excel
+// Xuất dữ liệu ra Excel
 window.exportToExcel = function() {
-  const table = document.querySelector("#query-time-result table");
+  const table = document.querySelector("#query-student-result").parentElement;
   if (!table) {
     alert("Không có dữ liệu để xuất.");
     return;
   }
+
   const worksheet = XLSX.utils.table_to_sheet(table);
   const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, 'Lịch Sử Điểm Danh');
-  XLSX.writeFile(workbook, 'LichSuDiemDanh.xlsx');
-}
-
-// Gợi ý tên học sinh
-window.suggestStudentNames = async function(inputId, suggestionsId) {
-  const input = document.getElementById(inputId);
-  const queryText = input.value.trim().toLowerCase();
-  const suggestionsList = document.getElementById(suggestionsId);
-  suggestionsList.innerHTML = '';
-
-  if (queryText.length === 0) return;
-
-  const studentQuery = query(collection(db, 'students'));
-  const querySnapshot = await getDocs(studentQuery);
-
-  let matches = 0;
-  querySnapshot.forEach(doc => {
-    const studentData = doc.data();
-    const studentName = studentData.name.toLowerCase();
-    const studentClasses = studentData.classes.join(', ');
-
-    if (studentName.startsWith(queryText) && matches < 10) {
-      const suggestionItem = document.createElement('li');
-      suggestionItem.textContent = `${studentData.name} (${studentClasses})`;
-      suggestionItem.onclick = () => {
-        input.value = studentData.name;
-        suggestionsList.innerHTML = '';
-      };
-      suggestionsList.appendChild(suggestionItem);
-      matches++;
-    }
-  });
-
-  if (matches === 0) {
-    suggestionsList.innerHTML = '<li>Không tìm thấy kết quả</li>';
-  }
-}
+  XLSX.utils.book_append_sheet(workbook, worksheet, "LichSuDiemDanh");
+  XLSX.writeFile(workbook, "LichSuDiemDanh.xlsx");
+};
