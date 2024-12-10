@@ -5,20 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Ứng dụng điểm danh học sinh cho các lớp học như Piano, Guitar, Thanh nhạc, Vẽ và hơn thế nữa.">
   <title>Ứng dụng Điểm danh Học sinh</title>
-  <!-- Liên kết tệp CSS -->
-  <link rel="stylesheet" href="./styles.css">
-  <!-- Thư viện XLSX để xuất ra Excel -->
+  <link rel="stylesheet" href="styles.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
+  <!-- Khu vực đăng nhập -->
   <div id="auth-section">
     <h2>Đăng nhập</h2>
-    <input type="email" id="email" placeholder="Email" required>
-    <input type="password" id="password" placeholder="Mật khẩu" required>
-    <button onclick="loginUser(document.getElementById('email').value, document.getElementById('password').value)">Đăng nhập</button>
+    <form onsubmit="event.preventDefault(); loginUser(document.getElementById('email').value, document.getElementById('password').value);">
+      <input type="email" id="email" placeholder="Email" required>
+      <input type="password" id="password" placeholder="Mật khẩu" required>
+      <button type="submit">Đăng nhập</button>
+    </form>
   </div>
 
+  <!-- Ứng dụng chính -->
   <div id="app" style="display: none;">
+    <!-- Thanh điều hướng -->
     <nav class="nav">
       <button onclick="showSection('attendance')">Điểm danh</button>
       <button onclick="showSection('query-student')">Truy vấn học sinh</button>
@@ -26,34 +29,41 @@
       <button onclick="showSection('add-student')">Thêm học sinh</button>
     </nav>
 
+    <!-- Điểm danh -->
     <section id="attendance" class="section">
       <h2>Điểm danh học sinh</h2>
-      <input type="text" id="student-name" placeholder="Tên học sinh" oninput="suggestStudentNames('student-name', 'attendance-suggestions')">
-      <ul id="attendance-suggestions" class="suggestions-list"></ul>
-      <input type="datetime-local" id="attendance-time">
-      <select id="attendance-class">
-        <option value="Piano">Piano</option>
-        <option value="Guitar">Guitar</option>
-        <option value="Vocal">Thanh nhạc</option>
-        <option value="Drawing">Vẽ</option>
-        <option value="Dance">Nhảy</option>
-        <option value="MC">MC</option>
-      </select>
-      <textarea id="attendance-content" placeholder="Nội dung buổi học"></textarea>
-      <label>
-        <input type="checkbox" id="absent-checkbox"> Vắng mặt
-      </label>
-      <button onclick="markAttendance()">Điểm danh</button>
+      <form onsubmit="event.preventDefault(); markAttendance();">
+        <input type="text" id="student-name" placeholder="Tên học sinh" oninput="suggestStudentNames('student-name', 'attendance-suggestions')" required minlength="3">
+        <ul id="attendance-suggestions" class="suggestions-list"></ul>
+        <input type="datetime-local" id="attendance-time" required>
+        <select id="attendance-class" required>
+          <option value="">Chọn lớp học</option>
+          <option value="Piano">Piano</option>
+          <option value="Guitar">Guitar</option>
+          <option value="Vocal">Thanh nhạc</option>
+          <option value="Drawing">Vẽ</option>
+          <option value="Dance">Nhảy</option>
+          <option value="MC">MC</option>
+        </select>
+        <textarea id="attendance-content" placeholder="Nội dung buổi học"></textarea>
+        <label>
+          <input type="checkbox" id="absent-checkbox"> Vắng mặt
+        </label>
+        <button type="submit">Điểm danh</button>
+      </form>
       <p id="attendance-status"></p>
     </section>
 
+    <!-- Truy vấn học sinh -->
     <section id="query-student" class="section hidden">
       <h2>Truy vấn học sinh</h2>
-      <input type="text" id="query-student-name" placeholder="Tên học sinh" oninput="suggestStudentNames('query-student-name', 'query-student-suggestions')">
-      <ul id="query-student-suggestions" class="suggestions-list"></ul>
-      <input type="date" id="query-student-start-date">
-      <input type="date" id="query-student-end-date">
-      <button onclick="queryStudent()">Truy vấn</button>
+      <form onsubmit="event.preventDefault(); queryStudent();">
+        <input type="text" id="query-student-name" placeholder="Tên học sinh" oninput="suggestStudentNames('query-student-name', 'query-student-suggestions')">
+        <ul id="query-student-suggestions" class="suggestions-list"></ul>
+        <input type="date" id="query-student-start-date" required>
+        <input type="date" id="query-student-end-date" required>
+        <button type="submit">Truy vấn</button>
+      </form>
       <div class="table-container">
         <table>
           <thead>
@@ -71,22 +81,25 @@
       <button id="export-student-excel" style="display:none;" onclick="exportToExcel()">Xuất ra Excel</button>
     </section>
 
+    <!-- Truy vấn thời gian -->
     <section id="query-time" class="section hidden">
       <h2>Truy vấn theo thời gian</h2>
-      <input type="date" id="query-time-start-date">
-      <input type="date" id="query-time-end-date">
-      <input type="time" id="query-start-time">
-      <input type="time" id="query-end-time">
-      <select id="query-time-class">
-        <option value="">Tất cả môn học</option>
-        <option value="Piano">Piano</option>
-        <option value="Guitar">Guitar</option>
-        <option value="Vocal">Thanh nhạc</option>
-        <option value="Drawing">Vẽ</option>
-        <option value="Dance">Nhảy</option>
-        <option value="MC">MC</option>
-      </select>
-      <button onclick="queryByTime()">Truy vấn</button>
+      <form onsubmit="event.preventDefault(); queryByTime();">
+        <input type="date" id="query-time-start-date" required>
+        <input type="date" id="query-time-end-date" required>
+        <input type="time" id="query-start-time" required>
+        <input type="time" id="query-end-time" required>
+        <select id="query-time-class">
+          <option value="">Tất cả môn học</option>
+          <option value="Piano">Piano</option>
+          <option value="Guitar">Guitar</option>
+          <option value="Vocal">Thanh nhạc</option>
+          <option value="Drawing">Vẽ</option>
+          <option value="Dance">Nhảy</option>
+          <option value="MC">MC</option>
+        </select>
+        <button type="submit">Truy vấn</button>
+      </form>
       <div class="table-container">
         <table>
           <thead>
@@ -103,22 +116,26 @@
       </div>
     </section>
 
+    <!-- Thêm học sinh -->
     <section id="add-student" class="section hidden">
       <h2>Thêm học sinh</h2>
-      <input type="text" id="new-student-name" placeholder="Tên học sinh">
-      <input type="number" id="number-of-lessons" placeholder="Số buổi học">
-      <h3>Môn học</h3>
-      <label><input type="checkbox" value="Piano" id="piano"> Piano</label>
-      <label><input type="checkbox" value="Guitar" id="guitar"> Guitar</label>
-      <label><input type="checkbox" value="Vocal" id="vocal"> Thanh nhạc</label>
-      <label><input type="checkbox" value="Drawing" id="drawing"> Vẽ</label>
-      <label><input type="checkbox" value="Dance" id="dance"> Nhảy</label>
-      <label><input type="checkbox" value="MC" id="mc"> MC</label>
-      <button onclick="addStudent()">Thêm học sinh</button>
+      <form onsubmit="event.preventDefault(); addStudent();">
+        <input type="text" id="new-student-name" placeholder="Tên học sinh" required minlength="3">
+        <input type="number" id="number-of-lessons" placeholder="Số buổi học" required min="1">
+        <div class="checkbox-group">
+          <label><input type="checkbox" id="piano"> Piano</label>
+          <label><input type="checkbox" id="guitar"> Guitar</label>
+          <label><input type="checkbox" id="vocal"> Thanh nhạc</label>
+          <label><input type="checkbox" id="drawing"> Vẽ</label>
+          <label><input type="checkbox" id="dance"> Nhảy</label>
+          <label><input type="checkbox" id="mc"> MC</label>
+        </div>
+        <button type="submit">Thêm học sinh</button>
+      </form>
       <p id="add-student-status"></p>
     </section>
   </div>
 
-  <script type="module" src="./script.js"></script>
+  <script type="module" src="script.js"></script>
 </body>
 </html>
