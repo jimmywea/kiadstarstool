@@ -12,7 +12,7 @@ body {
 
 #app {
   width: 100%;
-  max-width: 500px;
+  max-width: 600px;
   padding: 20px;
   background-color: #fff;
   border-radius: 10px;
@@ -23,8 +23,7 @@ body {
 
 /* Định dạng bảng */
 .table-container {
-  overflow-x: auto; /* Bổ sung cuộn ngang */
-  width: 100%;
+  overflow-x: auto; /* Kích hoạt cuộn ngang */
   margin-top: 15px;
 }
 
@@ -37,9 +36,7 @@ th, td {
   padding: 12px;
   text-align: left;
   border: 1px solid #ddd;
-  white-space: nowrap; /* Giữ dữ liệu trên 1 dòng */
-  overflow: hidden; /* Ngăn tràn nội dung */
-  text-overflow: ellipsis; /* Hiển thị dấu "..." khi nội dung dài */
+  white-space: nowrap; /* Dữ liệu không bị xuống dòng */
 }
 
 th {
@@ -54,7 +51,7 @@ td {
 /* Nút điều hướng */
 .nav {
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   margin-bottom: 20px;
 }
 
@@ -74,7 +71,7 @@ td {
   background-color: #0056b3;
 }
 
-/* Định dạng cho các trường input, select, textarea và nút */
+/* Các trường input, select, textarea và nút */
 input, button, select, textarea {
   width: 100%;
   padding: 10px;
@@ -130,19 +127,6 @@ label {
   display: block;
 }
 
-/* Container cho kết quả truy vấn */
-#query-time-result-container {
-  max-height: 300px;
-  overflow-y: auto;
-  border: 1px solid #ddd;
-  padding: 10px;
-}
-
-/* Ẩn các phần không cần thiết */
-.section.hidden {
-  display: none;
-}
-
 /* Thông báo sau khi điểm danh */
 #attendance-status {
   visibility: hidden;
@@ -153,12 +137,11 @@ label {
   opacity: 0;
 }
 
-/* Responsive design for mobile */
+/* Responsive design cho điện thoại */
 @media screen and (max-width: 600px) {
   #app {
     padding: 15px;
     width: 100%;
-    max-width: 100%;
   }
 
   th, td {
@@ -175,35 +158,4 @@ label {
     padding: 10px;
     font-size: 14px;
   }
-
-  .table-container {
-    margin-top: 10px;
-  }
-
-  th, td {
-    text-align: left;
-    white-space: nowrap;
-  }
-}
-
-/* Định dạng khi lỗi hoặc thông báo */
-.error {
-  color: red;
-  font-weight: bold;
-}
-
-.success {
-  color: green;
-  font-weight: bold;
-}
-
-/* Hiệu ứng chuyển đổi */
-button:hover, .nav button:hover {
-  transition: all 0.3s ease;
-}
-
-/* Định dạng thêm chi tiết cho danh sách */
-ul {
-  padding-left: 20px;
-  list-style-type: circle;
 }
