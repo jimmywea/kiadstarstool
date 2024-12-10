@@ -33,7 +33,7 @@
     <section id="attendance" class="section">
       <h2>Điểm danh học sinh</h2>
       <form onsubmit="event.preventDefault(); markAttendance();">
-        <input type="text" id="student-name" placeholder="Tên học sinh" oninput="suggestStudentNames('student-name', 'attendance-suggestions')" required minlength="3">
+        <input type="text" id="student-name" placeholder="Tên học sinh" oninput="suggestStudentNames('student-name', 'attendance-suggestions')" required>
         <ul id="attendance-suggestions" class="suggestions-list"></ul>
         <input type="datetime-local" id="attendance-time" required>
         <select id="attendance-class" required>
@@ -120,8 +120,8 @@
     <section id="add-student" class="section hidden">
       <h2>Thêm học sinh</h2>
       <form onsubmit="event.preventDefault(); addStudent();">
-        <input type="text" id="new-student-name" placeholder="Tên học sinh" required minlength="3">
-        <input type="number" id="number-of-lessons" placeholder="Số buổi học" required min="1">
+        <input type="text" id="new-student-name" placeholder="Tên học sinh" required>
+        <input type="number" id="number-of-lessons" placeholder="Số buổi học" required>
         <div class="checkbox-group">
           <label><input type="checkbox" id="piano"> Piano</label>
           <label><input type="checkbox" id="guitar"> Guitar</label>
