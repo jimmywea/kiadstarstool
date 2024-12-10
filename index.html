@@ -3,130 +3,98 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Ứng dụng điểm danh học sinh với giao diện thân thiện và chức năng mạnh mẽ.">
-  <title>Ứng dụng Điểm danh</title>
+  <meta name="description" content="Ứng dụng điểm danh học sinh cho các lớp học như Piano, Guitar, Thanh nhạc, Vẽ và hơn thế nữa.">
+  <title>Ứng dụng Điểm danh Học sinh</title>
   <link rel="stylesheet" href="styles.css">
+  <!-- Thư viện XLSX để xuất ra Excel -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
   <div id="auth-section">
     <h2>Đăng nhập</h2>
-    <form onsubmit="event.preventDefault(); loginUser(document.getElementById('email').value, document.getElementById('password').value);">
-      <input type="email" id="email" placeholder="Email" required>
-      <input type="password" id="password" placeholder="Mật khẩu" required>
-      <button type="submit">Đăng nhập</button>
-    </form>
+    <input type="email" id="email" placeholder="Email" required>
+    <input type="password" id="password" placeholder="Mật khẩu" required>
+    <button onclick="loginUser(document.getElementById('email').value, document.getElementById('password').value)">Đăng nhập</button>
   </div>
 
   <div id="app" style="display: none;">
-    <nav class="nav">
-      <button onclick="showSection('attendance')">Điểm danh</button>
-      <button onclick="showSection('query-student')">Truy vấn học sinh</button>
-      <button onclick="showSection('query-time')">Truy vấn thời gian</button>
-      <button onclick="showSection('add-student')">Thêm học sinh</button>
-    </nav>
+    <div class="nav">
+      <button onclick="showSection('attendance')" aria-label="Điểm danh học sinh">Điểm danh</button>
+      <button onclick="showSection('query-student')" aria-label="Truy vấn học sinh">Truy vấn học sinh</button>
+      <button onclick="showSection('query-time')" aria-label="Truy vấn theo thời gian">Truy vấn thời gian</button>
+      <button onclick="showSection('add-student')" aria-label="Thêm học sinh mới">Thêm học sinh mới</button>
+    </div>
 
-    <section id="attendance" class="section">
+    <div id="attendance" class="section">
       <h2>Điểm danh học sinh</h2>
-      <form onsubmit="event.preventDefault(); markAttendance();">
-        <input type="text" id="student-name" placeholder="Tên học sinh" oninput="suggestStudentNames('student-name', 'attendance-suggestions')" required>
-        <ul id="attendance-suggestions" class="suggestions-list"></ul>
-        <input type="datetime-local" id="attendance-time" required>
-        <select id="attendance-class" required>
-          <option value="">Chọn lớp học</option>
-          <option value="Piano">Piano</option>
-          <option value="Guitar">Guitar</option>
-          <option value="Vocal">Thanh nhạc</option>
-          <option value="Drawing">Vẽ</option>
-          <option value="Dance">Nhảy</option>
-          <option value="MC">MC</option>
-        </select>
-        <textarea id="attendance-content" placeholder="Nội dung buổi học"></textarea>
-        <label>
-          <input type="checkbox" id="absent-checkbox"> Vắng mặt
-        </label>
-        <button type="submit">Điểm danh</button>
-      </form>
+      <input type="text" id="student-name" placeholder="Tên học sinh" oninput="suggestStudentNames('student-name', 'attendance-suggestions')" required minlength="3" aria-label="Nhập tên học sinh">
+      <ul id="attendance-suggestions" class="suggestions-list"></ul>
+      <input type="datetime-local" id="attendance-time" aria-label="Chọn thời gian">
+      <select id="attendance-class" aria-label="Chọn lớp học">
+        <option value="Piano">Piano</option>
+        <option value="Guitar">Guitar</option>
+        <option value="Vocal">Thanh nhạc</option>
+        <option value="Drawing">Vẽ</option>
+        <option value="Dance">Nhảy</option>
+        <option value="MC">MC</option>
+      </select>
+      <textarea id="attendance-content" placeholder="Nội dung buổi học" rows="4" aria-label="Nhập nội dung buổi học"></textarea>
+      <label for="absent-checkbox">
+        <input type="checkbox" id="absent-checkbox" aria-label="Đánh dấu vắng mặt"> Vắng mặt
+      </label>
+      <button onclick="markAttendance()" aria-label="Xác nhận điểm danh">Điểm danh</button>
       <p id="attendance-status"></p>
-    </section>
+    </div>
 
-    <section id="query-student" class="section hidden">
-      <h2>Truy vấn học sinh</h2>
-      <form onsubmit="event.preventDefault(); queryStudent();">
-        <input type="text" id="query-student-name" placeholder="Tên học sinh" oninput="suggestStudentNames('query-student-name', 'query-student-suggestions')">
-        <ul id="query-student-suggestions" class="suggestions-list"></ul>
-        <input type="date" id="query-student-start-date" required>
-        <input type="date" id="query-student-end-date" required>
-        <button type="submit">Truy vấn</button>
-      </form>
-      <div class="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>Tên học sinh</th>
-              <th>Thời gian</th>
-              <th>Môn học</th>
-              <th>Trạng thái</th>
-              <th>Nội dung</th>
-            </tr>
-          </thead>
-          <tbody id="query-student-result"></tbody>
-        </table>
-      </div>
-      <button id="export-student-excel" style="display:none;" onclick="exportToExcel()">Xuất ra Excel</button>
-    </section>
+    <div id="query-student" class="section hidden">
+      <h2>Truy vấn học sinh cụ thể</h2>
+      <input type="text" id="query-student-name" placeholder="Tên học sinh" oninput="suggestStudentNames('query-student-name', 'query-student-suggestions')" aria-label="Nhập tên học sinh cần truy vấn">
+      <ul id="query-student-suggestions" class="suggestions-list"></ul>
+      <input type="date" id="query-student-start-date" aria-label="Ngày bắt đầu">
+      <input type="date" id="query-student-end-date" aria-label="Ngày kết thúc">
+      <button onclick="queryStudent()" aria-label="Truy vấn học sinh">Truy vấn</button>
+      <div id="query-student-result"></div>
+      <button id="export-student-excel" style="display:none;" onclick="exportToExcel()" aria-label="Xuất dữ liệu ra Excel">Xuất ra Excel</button>
+    </div>
 
-    <section id="query-time" class="section hidden">
+    <div id="query-time" class="section hidden">
       <h2>Truy vấn theo thời gian</h2>
-      <form onsubmit="event.preventDefault(); queryByTime();">
-        <input type="date" id="query-time-start-date" required>
-        <input type="date" id="query-time-end-date" required>
-        <input type="time" id="query-start-time" required>
-        <input type="time" id="query-end-time" required>
-        <select id="query-time-class">
-          <option value="">Tất cả môn học</option>
-          <option value="Piano">Piano</option>
-          <option value="Guitar">Guitar</option>
-          <option value="Vocal">Thanh nhạc</option>
-          <option value="Drawing">Vẽ</option>
-          <option value="Dance">Nhảy</option>
-          <option value="MC">MC</option>
-        </select>
-        <button type="submit">Truy vấn</button>
-      </form>
-      <div class="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>Tên học sinh</th>
-              <th>Thời gian</th>
-              <th>Môn học</th>
-              <th>Trạng thái</th>
-              <th>Nội dung</th>
-            </tr>
-          </thead>
-          <tbody id="query-time-result"></tbody>
-        </table>
+      <input type="date" id="query-time-start-date" aria-label="Ngày bắt đầu">
+      <input type="date" id="query-time-end-date" aria-label="Ngày kết thúc">
+      <input type="time" id="query-start-time" aria-label="Thời gian bắt đầu">
+      <input type="time" id="query-end-time" aria-label="Thời gian kết thúc">
+      <select id="query-time-class" aria-label="Chọn môn học">
+        <option value="">Chọn môn học (Tất cả)</option>
+        <option value="Piano">Piano</option>
+        <option value="Guitar">Guitar</option>
+        <option value="Vocal">Thanh nhạc</option>
+        <option value="Drawing">Vẽ</option>
+        <option value="Dance">Nhảy</option>
+        <option value="MC">MC</option>
+      </select>
+      <button onclick="queryByTime()" aria-label="Truy vấn theo thời gian">Truy vấn</button>
+      <button onclick="exportToExcel()" aria-label="Xuất dữ liệu ra Excel">Xuất ra Excel</button>
+      <div id="query-time-result-container">
+        <div id="query-time-result"></div>
       </div>
-    </section>
+    </div>
 
-    <section id="add-student" class="section hidden">
-      <h2>Thêm học sinh</h2>
-      <form onsubmit="event.preventDefault(); addStudent();">
-        <input type="text" id="new-student-name" placeholder="Tên học sinh" required>
-        <input type="number" id="number-of-lessons" placeholder="Số buổi học" required>
-        <div class="checkbox-group">
-          <label><input type="checkbox" id="piano"> Piano</label>
-          <label><input type="checkbox" id="guitar"> Guitar</label>
-          <label><input type="checkbox" id="vocal"> Thanh nhạc</label>
-          <label><input type="checkbox" id="drawing"> Vẽ</label>
-          <label><input type="checkbox" id="dance"> Nhảy</label>
-          <label><input type="checkbox" id="mc"> MC</label>
-        </div>
-        <button type="submit">Thêm học sinh</button>
-      </form>
+    <div id="add-student" class="section hidden">
+      <h2>Thêm học sinh mới</h2>
+      <input type="text" id="new-student-name" placeholder="Tên học sinh" required minlength="3" aria-label="Nhập tên học sinh mới">
+      <input type="number" id="number-of-lessons" placeholder="Số buổi học" required min="1" aria-label="Nhập số buổi học">
+      <h3>Chọn môn học:</h3>
+      <div class="checkbox-group">
+        <label><input type="checkbox" value="Piano" id="piano" aria-label="Chọn môn Piano"> Piano</label>
+        <label><input type="checkbox" value="Guitar" id="guitar" aria-label="Chọn môn Guitar"> Guitar</label>
+        <label><input type="checkbox" value="Vocal" id="vocal" aria-label="Chọn môn Thanh nhạc"> Thanh nhạc</label>
+        <label><input type="checkbox" value="Drawing" id="drawing" aria-label="Chọn môn Vẽ"> Vẽ</label>
+        <label><input type="checkbox" value="Dance" id="dance" aria-label="Chọn môn Nhảy"> Nhảy</label>
+        <label><input type="checkbox" value="MC" id="mc" aria-label="Chọn môn MC"> MC</label>
+      </div>
+      <button onclick="addStudent()" aria-label="Xác nhận thêm học sinh">Thêm học sinh</button>
       <p id="add-student-status"></p>
-    </section>
+    </div>
   </div>
 
   <script type="module" src="script.js"></script>
