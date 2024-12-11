@@ -48,7 +48,7 @@ onAuthStateChanged(auth, (user) => {
 window.showSection = function(sectionId) {
   document.querySelectorAll('.section').forEach(section => section.classList.add('hidden'));
   document.getElementById(sectionId).classList.remove('hidden');
-}
+};
 
 // Điểm danh học sinh
 window.markAttendance = async function() {
@@ -121,7 +121,7 @@ window.markAttendance = async function() {
       }, 500); 
     }, 3000); 
   }
-}
+};
 
 // Hàm thêm học sinh mới
 window.addStudent = async function() {
@@ -147,7 +147,7 @@ window.addStudent = async function() {
     console.error("Lỗi khi thêm học sinh: ", error);
     document.getElementById('add-student-status').innerText = 'Thêm học sinh thất bại.';
   }
-}
+};
 
 // Truy vấn học sinh
 window.queryStudent = async function() {
@@ -205,65 +205,11 @@ window.queryStudent = async function() {
 
   document.getElementById('query-student-result').innerHTML = resultTable;
   document.getElementById('export-student-excel').style.display = results.length > 0 ? 'block' : 'none';
-}
-
-// Truy vấn theo thời gian
-window.queryByTime = async function() {
-  const startDate = new Date(document.getElementById('query-time-start-date').value);
-  const endDate = new Date(document.getElementById('query-time-end-date').value);
-  const startTime = document.getElementById('query-start-time').value;
-  const endTime = document.getElementById('query-end-time').value;
-  const selectedClass = document.getElementById('query-time-class').value;
-
-  const startTimestamp = new Date(`${startDate.toISOString().split('T')[0]}T${startTime}`);
-  const endTimestamp = new Date(`${endDate.toISOString().split('T')[0]}T${endTime}`);
-
-  let conditions = [
-    where("date", ">=", Timestamp.fromDate(startTimestamp)),
-    where("date", "<=", Timestamp.fromDate(endTimestamp))
-  ];
-
-  if (selectedClass) {
-    conditions.push(where("classes", "array-contains", selectedClass));
-  }
-
-  const timeQuery = query(collection(db, 'attendance'), ...conditions, limit(50));
-  const querySnapshot = await getDocs(timeQuery);
-  const results = [];
-
-  querySnapshot.forEach(doc => {
-    const data = doc.data();
-    results.push({
-      name: data.name,
-      date: data.date.toDate(),
-      classes: data.classes,
-      status: data.absent ? 'Vắng mặt' : 'Có mặt',
-      content: data.content || 'Không có'
-    });
-  });
-
-  results.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-  let resultTable = '<table border="1" style="width:100%; border-collapse:collapse;">';
-  resultTable += '<tr><th>Tên Học Sinh</th><th>Thời Gian</th><th>Môn Học</th><th>Trạng Thái</th><th>Nội Dung</th></tr>';
-
-  results.forEach(data => {
-    resultTable += `<tr>
-      <td>${data.name}</td>
-      <td>${data.date.toLocaleString()}</td>
-      <td>${data.classes.join(', ')}</td>
-      <td>${data.status}</td>
-      <td>${data.content}</td>
-    </tr>`;
-  });
-
-  resultTable += '</table>';
-  document.getElementById('query-time-result').innerHTML = resultTable || 'Không có dữ liệu';
-}
+};
 
 // Hàm xuất Excel
 window.exportToExcel = function() {
-  const table = document.querySelector("#query-time-result table");
+  const table = document.querySelector("#query-student-result table");
   if (!table) {
     alert("Không có dữ liệu để xuất.");
     return;
@@ -272,39 +218,4 @@ window.exportToExcel = function() {
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, 'Lịch Sử Điểm Danh');
   XLSX.writeFile(workbook, 'LichSuDiemDanh.xlsx');
-}
-
-// Gợi ý tên học sinh
-window.suggestStudentNames = async function(inputId, suggestionsId) {
-  const input = document.getElementById(inputId);
-  const queryText = input.value.trim().toLowerCase();
-  const suggestionsList = document.getElementById(suggestionsId);
-  suggestionsList.innerHTML = '';
-
-  if (queryText.length === 0) return;
-
-  const studentQuery = query(collection(db, 'students'));
-  const querySnapshot = await getDocs(studentQuery);
-
-  let matches = 0;
-  querySnapshot.forEach(doc => {
-    const studentData = doc.data();
-    const studentName = studentData.name.toLowerCase();
-    const studentClasses = studentData.classes.join(', ');
-
-    if (studentName.startsWith(queryText) && matches < 10) {
-      const suggestionItem = document.createElement('li');
-      suggestionItem.textContent = `${studentData.name} (${studentClasses})`;
-      suggestionItem.onclick = () => {
-        input.value = studentData.name;
-        suggestionsList.innerHTML = '';
-      };
-      suggestionsList.appendChild(suggestionItem);
-      matches++;
-    }
-  });
-
-  if (matches === 0) {
-    suggestionsList.innerHTML = '<li>Không tìm thấy kết quả</li>';
-  }
-}
+};
