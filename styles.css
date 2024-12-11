@@ -42,6 +42,7 @@ th {
 
 td {
   background-color: #f9f9f9;
+  white-space: normal; /* Để nội dung dài có thể xuống dòng */
 }
 
 /* Nút điều hướng */
